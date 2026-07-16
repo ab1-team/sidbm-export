@@ -1,6 +1,6 @@
 # sidbm-export
 
-Aplikasi Laravel untuk mengarsipkan data historis SIDBM (saldo & transaksi) ke Local Storage.
+Aplikasi Laravel untuk mengarsipkan data historis SIDBM (saldo & transaksi) ke EnStorage.
 
 ## Cara Kerja
 
