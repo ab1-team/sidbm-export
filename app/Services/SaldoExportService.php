@@ -42,7 +42,7 @@ class SaldoExportService
             'status'       => 'pending',
             'triggered_by' => $triggeredBy,
         ]);
-
+        
         try {
             // ── STEP 1: Query data dari DB SIDBM ──────────────────
             $model = new SaldoModel($kecamatanId);
@@ -114,28 +114,26 @@ class SaldoExportService
             // ── STEP 4: Update log dengan status success ──────────
             $log->update([
                 'status'       => 'success',
-                'file_url'     => $result['url'],
+                'file_id'      => $result['file_id'] ?? null,
+                'file_url'     => $result['url'] ?? null,
                 'file_size'    => $result['size'],
                 'record_count' => count($output),
             ]);
 
-            return [
-                'success' => true,
-                'message' => "Berhasil export {$kodeAkun} akun",
-                'log_id'  => $log->id,
-            ];
+return [
+    'success' => true,
+    'message' => "Berhasil export " . count($output) . " akun",
+    'log_id'  => $log->id,
+];
 
-        } catch (\Exception $e) {
-            $log->update([
-                'status'        => 'failed',
-                'error_message' => $e->getMessage(),
-            ]);
+} catch (\Throwable $e) {
 
-            return [
-                'success' => false,
-                'message' => 'Error tidak terduga: ' . $e->getMessage(),
-                'log_id'  => $log->id,
-            ];
-        }
+    $log->update([
+        'status'        => 'failed',
+        'error_message' => $e->getMessage(),
+    ]);
+
+    throw $e;
+}
     }
 }

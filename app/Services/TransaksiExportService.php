@@ -48,6 +48,10 @@ class TransaksiExportService
             'triggered_by' => $triggeredBy,
         ]);
 
+        $log->update([
+    'status' => 'processing',
+]);
+
         try {
             // ── STEP 1: Query transaksi bulan ini ─────────────────
             $model = new TransaksiModel($kecamatanId);
@@ -65,18 +69,21 @@ class TransaksiExportService
                 ]);
 
             if ($rows->isEmpty()) {
-                // Tidak ada transaksi di bulan ini — bukan error, skip saja
-                $log->update([
-                    'status'        => 'failed',
-                    'error_message' => "Tidak ada transaksi bulan {$bulanPadded}/{$tahun}",
-                ]);
 
-                return [
-                    'success' => false,
-                    'message' => "Tidak ada transaksi bulan {$bulanPadded}/{$tahun}",
-                    'log_id'  => $log->id,
-                ];
-            }
+    $this->enstorage->upload($kecamatanId, $filename, []);
+
+    $log->update([
+        'status'       => 'success',
+        'record_count' => 0,
+        'file_size'    => 2,
+    ]);
+
+    return [
+        'success' => true,
+        'message' => "Tidak ada transaksi",
+        'log_id'  => $log->id,
+    ];
+}
 
             // ── STEP 2: Mapping & cast tipe data ──────────────────
             // Cast penting agar JSON menghasilkan tipe yang benar
@@ -117,7 +124,8 @@ class TransaksiExportService
             // ── STEP 4: Update log ────────────────────────────────
             $log->update([
                 'status'       => 'success',
-                'file_url'     => $result['url'],
+                'file_id'      => $result['file_id'] ?? null,
+                'file_url'     => $result['url'] ?? null,
                 'file_size'    => $result['size'],
                 'record_count' => count($transaksi),
             ]);
@@ -159,7 +167,60 @@ class TransaksiExportService
 
             $result['success'] ? $success++ : $failed++;
         }
-
+        // Jika ada minimal satu file yang berhasil diexport,
+// gabungkan menjadi transaksi_2023.json
+if ($success > 0) {
+    $this->mergeTahun($kecamatanId, $tahun);
+}
         return compact('success', 'failed', 'results');
     }
+
+    /**
+ * Menggabungkan seluruh file transaksi bulanan menjadi satu file tahunan.
+ */
+private function mergeTahun(int $kecamatanId, int $tahun): void
+{
+    $folder = storage_path("app/private/kecamatan_{$kecamatanId}");
+
+    $hasil = [];
+
+    for ($bulan = 1; $bulan <= 12; $bulan++) {
+
+        $bulanKey = sprintf("%02d", $bulan);
+
+        $file = "{$folder}/transaksi_{$tahun}_{$bulanKey}.json";
+
+        if (file_exists($file)) {
+
+            $json = json_decode(file_get_contents($file), true);
+
+            $hasil[$bulanKey] = is_array($json) ? $json : [];
+
+        } else {
+
+            // Kalau file tidak ada, tetap buat array kosong
+            $hasil[$bulanKey] = [];
+        }
+    }
+
+    file_put_contents(
+        "{$folder}/transaksi_{$tahun}.json",
+        json_encode(
+            $hasil,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+        )
+    );
+
+    // Hapus file bulanan
+    for ($bulan = 1; $bulan <= 12; $bulan++) {
+
+        $bulanKey = sprintf("%02d", $bulan);
+
+        $file = "{$folder}/transaksi_{$tahun}_{$bulanKey}.json";
+
+        if (file_exists($file)) {
+            unlink($file);
+        }
+    }
+}
 }
