@@ -132,6 +132,8 @@
         </a>
       </h2>
 
+      <div id="latestLogs">
+
       @forelse ($recentLogs as $log)
         <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border);">
           <div>
@@ -160,7 +162,7 @@
       @endforelse
     </div>
   </div>
-
+  </div>
 </div>
 
 <script>
@@ -337,6 +339,57 @@ function addLog(type, message, detail = '') {
     </div>`;
   logContainer.appendChild(div);
 }
+
+async function loadLatestLogs() {
+    try {
+        const response = await fetch('{{ route("exports.latestLogs") }}', {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!data.success) return;
+
+        let html = '';
+
+        data.logs.forEach(log => {
+
+            html += `
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);">
+                    <div>
+                        <div style="font-size:.875rem;font-weight:500;">
+                            Kec. ${log.kecamatan_id} — ${log.jenis} ${log.tahun}
+                            ${log.bulan ? '/ ' + log.bulan : ''}
+                        </div>
+
+                        <div class="text-muted" style="font-size:.78rem;">
+                            ${log.filename}
+                        </div>
+                    </div>
+
+                    <div style="text-align:right;">
+                        <span class="badge badge--${log.status}">
+                            ${log.status}
+                        </span>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('latestLogs').innerHTML = html;
+
+    } catch (error) {
+        console.error('Polling log gagal:', error);
+    }
+}
+
+// pertama kali dijalankan
+loadLatestLogs();
+
+// ulangi setiap 5 detik
+setInterval(loadLatestLogs, 5000);
 
 </script>
 

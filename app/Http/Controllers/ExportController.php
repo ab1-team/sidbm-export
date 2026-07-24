@@ -51,6 +51,18 @@ class ExportController extends Controller
         ));
     }
 
+        public function latestLogs()
+    {
+        $logs = ExportLog::latest()
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs,
+        ]);
+    }
+
     /**
      * Jalankan export via AJAX dari UI (mode manual: 1 kecamatan + 1 tahun)
      * Dipanggil saat user klik tombol Export di halaman
