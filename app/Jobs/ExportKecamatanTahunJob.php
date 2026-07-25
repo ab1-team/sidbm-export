@@ -13,14 +13,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\SkipIfBatchCancelled;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ExportKecamatanTahunJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 900; // 15 menit per kombinasi, sesuaikan kalau perlu
-    public $tries   = 3;
+    public $timeout = 900;
+    public $tries   = 1;
 
     public function __construct(
         public int $kecamatanId,
@@ -66,6 +67,11 @@ class ExportKecamatanTahunJob implements ShouldQueue
 }
     public function failed(Throwable $exception): void
     {
-        report($exception);
+        Log::error('ExportKecamatanTahunJob failed', [
+            'kecamatan_id' => $this->kecamatanId,
+            'tahun'        => $this->tahun,
+            'jenis'        => $this->jenis,
+            'error'        => $exception->getMessage(),
+        ]);
     }
 }

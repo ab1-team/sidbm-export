@@ -11,8 +11,9 @@ use App\Services\SaldoExportService;
 use App\Services\TransaksiExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
-use App\Jobs\ExportSaldoTahunJob;
-use App\Jobs\ExportTransaksiTahunJob;
+use App\Jobs\ExportKecamatanTahunJob;
+use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Cache;
 
 class ExportController extends Controller
 {
@@ -123,70 +124,38 @@ class ExportController extends Controller
 
         $user = auth()->user()?->name ?? 'ui';
 
-       
-$saldoJobs = [];
-$transaksiJobs = [];
+$jobs = [];
 
 foreach ($kecamatanList as $kec) {
+
     foreach ($tahunList as $tahun) {
 
-        if ($jenis === 'saldo') {
+        $jobs[] = new ExportKecamatanTahunJob(
+            $kec->id,
+            $tahun,
+            $jenis,
+            $user
+        );
 
-            $saldoJobs[] = new ExportSaldoTahunJob(
-                $kec->id,
-                $tahun,
-                $user
-            );
-
-        } elseif ($jenis === 'transaksi') {
-
-            $transaksiJobs[] = new ExportTransaksiTahunJob(
-                $kec->id,
-                $tahun,
-                $user
-            );
-
-        } elseif ($jenis === 'semua') {
-
-            $saldoJobs[] = new ExportSaldoTahunJob(
-                $kec->id,
-                $tahun,
-                $user
-            );
-
-            $transaksiJobs[] = new ExportTransaksiTahunJob(
-                $kec->id,
-                $tahun,
-                $user
-            );
-        }
     }
+
 }
 
-$batchSaldo = null;
-$batchTransaksi = null;
 
-if (!empty($saldoJobs)) {
-    $batchSaldo = Bus::batch($saldoJobs)
-        ->name('export-saldo-' . now()->format('YmdHis'))
-        ->onQueue('saldo')
-        ->allowFailures()
-        ->dispatch();
-}
+$batch = Bus::batch($jobs)
+    ->name('export-' . now()->format('YmdHis'))
+    ->onQueue('export')
+    ->allowFailures()
+    ->dispatch();
 
-if (!empty($transaksiJobs)) {
-    $batchTransaksi = Bus::batch($transaksiJobs)
-        ->name('export-transaksi-' . now()->format('YmdHis'))
-        ->onQueue('transaksi')
-        ->allowFailures()
-        ->dispatch();
-}
-return response()->json([
+$this->ensureQueueWorkerRunning();
+
+
+    return response()->json([
     'success' => true,
     'message' => 'Export berjalan di background.',
-    'saldo_batch_id' => $batchSaldo?->id,
-    'transaksi_batch_id' => $batchTransaksi?->id,
-    'total_jobs' => count($saldoJobs) + count($transaksiJobs),
+    'batch_id' => $batch->id,
+    'total_jobs' => count($jobs),
 ]);
     }
 
@@ -251,4 +220,27 @@ return response()->json([
 
         return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status'));
     }
+
+   private function ensureQueueWorkerRunning(): void
+{
+    $lockKey = 'queue-worker-running';
+
+    // Jangan spawn worker berkali-kali
+    if (Cache::has($lockKey)) {
+        return;
+    }
+
+    Cache::put($lockKey, true, now()->addSeconds(30));
+
+    $php = PHP_BINARY;
+    $artisan = base_path('artisan');
+
+    $command = sprintf(
+        'start "" /B "%s" "%s" queue:work --queue=export --stop-when-empty',
+        $php,
+        $artisan
+    );
+
+    pclose(popen($command, 'r'));
+}
 }

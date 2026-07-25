@@ -32,7 +32,18 @@ class SaldoExportService
      */
     public function export(int $kecamatanId, int $tahun, string $triggeredBy = 'manual'): array
     {
-        // Buat log dengan status pending dulu
+        if (ExportLog::where('kecamatan_id', $kecamatanId)
+            ->where('jenis', 'saldo')
+            ->where('tahun', $tahun)
+            ->whereIn('status', ['processing', 'pending'])
+            ->exists()) {
+            return [
+                'success' => false,
+                'message' => "Export saldo {$tahun} untuk kecamatan {$kecamatanId} sedang berjalan atau pending.",
+                'log_id'  => null,
+            ];
+        }
+
         $log = ExportLog::create([
             'kecamatan_id' => $kecamatanId,
             'jenis'        => 'saldo',
@@ -114,7 +125,6 @@ class SaldoExportService
             // ── STEP 4: Update log dengan status success ──────────
             $log->update([
                 'status'       => 'success',
-                'file_id'      => $result['file_id'] ?? null,
                 'file_url'     => $result['url'] ?? null,
                 'file_size'    => $result['size'],
                 'record_count' => count($output),
@@ -127,13 +137,16 @@ return [
 ];
 
 } catch (\Throwable $e) {
-
     $log->update([
         'status'        => 'failed',
         'error_message' => $e->getMessage(),
     ]);
 
-    throw $e;
+    return [
+        'success' => false,
+        'message' => 'Error: ' . $e->getMessage(),
+        'log_id'  => $log->id,
+    ];
 }
     }
 }
