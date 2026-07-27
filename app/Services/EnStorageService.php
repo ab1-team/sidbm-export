@@ -1,104 +1,83 @@
 <?php
 
-// app/Services/EnStorageService.php
-
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Storage;
 
 /**
- * Service untuk berkomunikasi dengan EnStorage API.
- *
- * KONSEP Service Class:
- * Daripada menulis logika HTTP request langsung di Command atau Controller,
- * kita pisahkan ke Service class. Keuntungannya:
- * - Bisa dipakai dari mana saja (Command, Controller, Job)
- * - Mudah di-test
- * - Perubahan API EnStorage cukup di satu tempat
+ * Service untuk menyimpan file ke local storage.
+ * (Sementara tidak pakai EnStorage API eksternal, biar bisa fokus test alur queue dulu)
  */
 class EnStorageService
 {
-    private string $baseUrl;
-    private string $apiKey;
     private string $folderPrefix;
-    private int    $timeout;
 
     public function __construct()
     {
-        $this->baseUrl      = config('enstorage.url');
-        $this->apiKey       = config('enstorage.api_key');
         $this->folderPrefix = config('enstorage.folder_prefix', 'kecamatan_');
-        $this->timeout      = config('enstorage.timeout', 60);
     }
 
     /**
-     * Upload file JSON ke EnStorage
+     * Simpan file JSON ke local storage
      *
      * @param int    $kecamatanId  ID kecamatan — dipakai sebagai nama folder
      * @param string $filename     Nama file, misal: saldo_2023.json
      * @param array  $data         Data yang akan di-encode sebagai JSON
      *
-     * @return array{success: bool, url: string|null, size: int|null, message: string}
+     * @return array{success: bool, url: string|null, size: int|null, message: string, file_id: string|null}
      */
     public function upload(int $kecamatanId, string $filename, array $data): array
     {
         try {
-            // Encode data ke JSON
-            $jsonContent = json_encode($data, JSON_UNESCAPED_UNICODE);
+            $jsonContent = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
             $fileSize    = strlen($jsonContent);
 
-            // Buat folder path: kecamatan_1/saldo_2023.json
-            $folderPath = $this->folderPrefix . $kecamatanId;
+            $folderPath = "exports/{$this->folderPrefix}{$kecamatanId}";
+            $fullPath   = $folderPath . '/' . $filename;
+            $disk       = Storage::disk('local');
 
-            // Kirim ke EnStorage API
-            $response = Http::timeout($this->timeout)
-                ->withToken($this->apiKey)
-                ->attach('file', $jsonContent, $filename, ['Content-Type' => 'application/json'])
-                ->post("{$this->baseUrl}/api/v1/upload", [
-                    'folder'  => $folderPath,
-                ]);
+            if (!$disk->exists($folderPath)) {
+                $disk->makeDirectory($folderPath);
+            }
 
-            if ($response->successful()) {
-                $body = $response->json();
+            $result = $disk->put($fullPath, $jsonContent);
+
+            if (!$result) {
                 return [
-                    'success' => true,
-                    'url'     => $body['data']['url'] ?? null,
-                    'size'    => $fileSize,
-                    'message' => 'Upload berhasil',
+                    'success' => false,
+                    'url'     => null,
+                    'size'    => null,
+                    'file_id' => null,
+                    'message' => "Gagal menyimpan file: {$fullPath}",
                 ];
             }
 
+            $absolutePath = storage_path('app/private/' . $fullPath);
+
             return [
-                'success' => false,
-                'url'     => null,
-                'size'    => null,
-                'message' => 'Upload gagal: ' . $response->status() . ' ' . $response->body(),
+                'success' => true,
+                'url'     => $absolutePath,
+                'size'    => $fileSize,
+                'file_id' => null,
+                'message' => 'Disimpan lokal ke: ' . $absolutePath,
             ];
+
         } catch (\Exception $e) {
             return [
                 'success' => false,
                 'url'     => null,
                 'size'    => null,
+                'file_id' => null,
                 'message' => 'Error: ' . $e->getMessage(),
             ];
         }
     }
 
     /**
-     * Cek apakah koneksi ke EnStorage berhasil
-     * Dipakai di UI untuk validasi konfigurasi
+     * Cek apakah "penyimpanan" siap dipakai (selalu true untuk local storage)
      */
     public function ping(): bool
     {
-        try {
-            $response = Http::timeout(10)
-                ->withToken($this->apiKey)
-                ->get("{$this->baseUrl}/api/v1/ping");
-
-            return $response->successful();
-        } catch (\Exception) {
-            return false;
-        }
+        return true;
     }
 }

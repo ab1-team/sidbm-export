@@ -10,6 +10,10 @@ use App\Services\EnStorageService;
 use App\Services\SaldoExportService;
 use App\Services\TransaksiExportService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
+use App\Jobs\ExportKecamatanTahunJob;
+use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Cache;
 
 class ExportController extends Controller
 {
@@ -26,7 +30,7 @@ class ExportController extends Controller
     {
         $batasArsip  = (int) config('app.arsip_batas_tahun', now()->year - 2);
         $tahunList   = range(2018, $batasArsip - 1);
-        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kecamatan']);
+        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
 
         // Ringkasan log terbaru
         $recentLogs = ExportLog::with([])
@@ -48,8 +52,20 @@ class ExportController extends Controller
         ));
     }
 
+        public function latestLogs()
+    {
+        $logs = ExportLog::latest()
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs,
+        ]);
+    }
+
     /**
-     * Jalankan export via AJAX dari UI
+     * Jalankan export via AJAX dari UI (mode manual: 1 kecamatan + 1 tahun)
      * Dipanggil saat user klik tombol Export di halaman
      */
     public function run(Request $request)
@@ -95,6 +111,108 @@ class ExportController extends Controller
     }
 
     /**
+     * Dispatch export SEMUA kecamatan × semua tahun ke background (queue batch)
+     * Urutan: kecamatan_1/tahun tertua → kecamatan_1/tahun terbaru → kecamatan_2/... dst
+     * Berjalan lewat queue worker, sehingga TIDAK terpengaruh jika browser/tab ditutup.
+     */
+    public function runAll(Request $request)
+    {
+        $request->validate([
+            'jenis' => 'required|in:saldo,transaksi,semua',
+        ]);
+
+        $jenis      = $request->jenis;
+        $batasArsip = (int) config('app.arsip_batas_tahun', now()->year - 2);
+        $tahunList  = range(2018, $batasArsip - 1);
+
+        $kecamatanList = Kecamatan::orderBy('id')->get(['id']);
+
+        if ($kecamatanList->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada data kecamatan.',
+            ], 422);
+        }
+
+        $user = auth()->user()?->name ?? 'ui';
+
+$jobs = [];
+
+foreach ($kecamatanList as $kec) {
+
+    foreach ($tahunList as $tahun) {
+
+        $jobs[] = new ExportKecamatanTahunJob(
+            $kec->id,
+            $tahun,
+            $jenis,
+            $user
+        );
+
+    }
+
+}
+
+
+$batch = Bus::batch($jobs)
+    ->name('export-' . now()->format('YmdHis'))
+    ->onQueue('export')
+    ->allowFailures()
+    ->dispatch();
+
+$this->ensureQueueWorkerRunning();
+
+
+    return response()->json([
+    'success' => true,
+    'message' => 'Export berjalan di background.',
+    'batch_id' => $batch->id,
+    'total_jobs' => count($jobs),
+]);
+    }
+
+    /**
+     * Cek progress batch export (dipanggil oleh polling di frontend)
+     */
+    public function batchStatus(string $batchId)
+    {
+        $batch = Bus::findBatch($batchId);
+
+        if (! $batch) {
+            return response()->json(['success' => false, 'message' => 'Batch tidak ditemukan.'], 404);
+        }
+
+        return response()->json([
+            'success'   => true,
+            'total'     => $batch->totalJobs,
+            'processed' => $batch->processedJobs(),
+            'failed'    => $batch->failedJobs,
+            'pending'   => $batch->pendingJobs,
+            'finished'  => $batch->finished(),
+            'cancelled' => $batch->cancelled(),
+            'percent'   => $batch->totalJobs > 0
+                ? round(($batch->processedJobs() / $batch->totalJobs) * 100)
+                : 0,
+        ]);
+    }
+
+    /**
+     * Batalkan sisa proses batch yang sedang berjalan
+     */
+    public function batchCancel(string $batchId)
+    {
+        $batch = Bus::findBatch($batchId);
+
+        if (! $batch) {
+            return response()->json(['success' => false, 'message' => 'Batch tidak ditemukan.'], 404);
+        }
+
+        $batch->cancel();
+
+        return response()->json(['success' => true, 'message' => 'Sisa proses dibatalkan.']);
+    }
+
+    /**
      * Halaman log per kecamatan
      */
     public function logs(Request $request)
@@ -110,8 +228,31 @@ class ExportController extends Controller
             ->latest()
             ->paginate(25);
 
-        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kecamatan']);
+        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
 
         return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status'));
     }
+
+   private function ensureQueueWorkerRunning(): void
+{
+    $lockKey = 'queue-worker-running';
+
+    // Jangan spawn worker berkali-kali
+    if (Cache::has($lockKey)) {
+        return;
+    }
+
+    Cache::put($lockKey, true, now()->addSeconds(30));
+
+    $php = PHP_BINARY;
+    $artisan = base_path('artisan');
+
+    $command = sprintf(
+        'start "" /B "%s" "%s" queue:work --queue=export --stop-when-empty',
+        $php,
+        $artisan
+    );
+
+    pclose(popen($command, 'r'));
+}
 }

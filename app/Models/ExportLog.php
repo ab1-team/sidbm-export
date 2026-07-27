@@ -16,6 +16,7 @@ class ExportLog extends Model
         'bulan',
         'filename',
         'file_url',
+        'file_id',
         'file_size',
         'record_count',
         'status',

@@ -32,7 +32,18 @@ class SaldoExportService
      */
     public function export(int $kecamatanId, int $tahun, string $triggeredBy = 'manual'): array
     {
-        // Buat log dengan status pending dulu
+        if (ExportLog::where('kecamatan_id', $kecamatanId)
+            ->where('jenis', 'saldo')
+            ->where('tahun', $tahun)
+            ->whereIn('status', ['processing', 'pending'])
+            ->exists()) {
+            return [
+                'success' => false,
+                'message' => "Export saldo {$tahun} untuk kecamatan {$kecamatanId} sedang berjalan atau pending.",
+                'log_id'  => null,
+            ];
+        }
+
         $log = ExportLog::create([
             'kecamatan_id' => $kecamatanId,
             'jenis'        => 'saldo',
@@ -42,7 +53,7 @@ class SaldoExportService
             'status'       => 'pending',
             'triggered_by' => $triggeredBy,
         ]);
-
+        
         try {
             // ── STEP 1: Query data dari DB SIDBM ──────────────────
             $model = new SaldoModel($kecamatanId);
@@ -114,28 +125,28 @@ class SaldoExportService
             // ── STEP 4: Update log dengan status success ──────────
             $log->update([
                 'status'       => 'success',
-                'file_url'     => $result['url'],
+                'file_url'     => $result['url'] ?? null,
                 'file_size'    => $result['size'],
                 'record_count' => count($output),
             ]);
 
-            return [
-                'success' => true,
-                'message' => "Berhasil export {$kodeAkun} akun",
-                'log_id'  => $log->id,
-            ];
+return [
+    'success' => true,
+    'message' => "Berhasil export " . count($output) . " akun",
+    'log_id'  => $log->id,
+];
 
-        } catch (\Exception $e) {
-            $log->update([
-                'status'        => 'failed',
-                'error_message' => $e->getMessage(),
-            ]);
+} catch (\Throwable $e) {
+    $log->update([
+        'status'        => 'failed',
+        'error_message' => $e->getMessage(),
+    ]);
 
-            return [
-                'success' => false,
-                'message' => 'Error tidak terduga: ' . $e->getMessage(),
-                'log_id'  => $log->id,
-            ];
-        }
+    return [
+        'success' => false,
+        'message' => 'Error: ' . $e->getMessage(),
+        'log_id'  => $log->id,
+    ];
+}
     }
 }
