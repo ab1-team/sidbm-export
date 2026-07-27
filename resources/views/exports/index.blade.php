@@ -219,6 +219,22 @@ btnExport.addEventListener('click', async () => {
   const tahun       = selTahun.value;
   const jenis       = document.querySelector('input[name="jenis"]:checked').value;
 
+let url = '';
+
+switch (jenis) {
+    case 'saldo':
+        url = '/api/export/saldo';
+        break;
+
+    case 'transaksi':
+        url = '/api/export/transaksi';
+        break;
+
+    case 'semua':
+        url = '/api/export/semua';
+        break;
+}
+
   manualAbortController = new AbortController();
   setManualLoading(true);
   cardLog.style.display = 'block';
@@ -226,14 +242,17 @@ btnExport.addEventListener('click', async () => {
   addLog('info', `🚀 Memulai export ${jenis} — Kecamatan ${kecamatanId}, Tahun ${tahun}...`);
 
   try {
-    const response = await fetch('{{ route("export.run") }}', {
+    const response = await fetch(url, {
       method : 'POST',
       headers: {
         'Content-Type'    : 'application/json',
         'X-CSRF-TOKEN'    : document.querySelector('meta[name="csrf-token"]').content,
         'Accept'          : 'application/json',
       },
-      body: JSON.stringify({ kecamatan_id: kecamatanId, tahun, jenis }),
+      body: JSON.stringify({
+    kecamatan_id: kecamatanId,
+    tahun: tahun
+}),
       signal: manualAbortController.signal,
     });
 
@@ -280,7 +299,6 @@ async function startBulkExport() {
 
   bulkRunning = true;
   const jenis = document.querySelector('input[name="jenis"]:checked').value;
-
   cardLog.style.display = 'block';
   logContainer.innerHTML = '';
   addLog('info', `🚀 Mengirim ${kecamatanData.length} kecamatan × ${tahunData.length} tahun ke antrean background...`);
@@ -288,7 +306,7 @@ async function startBulkExport() {
   setBulkLoading(true);
 
   try {
-    const response = await fetch('{{ route("export.run-all") }}', {
+    const response = await fetch('/api/export/run-all', {
       method : 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -342,7 +360,7 @@ function addLog(type, message, detail = '') {
 
 async function loadLatestLogs() {
     try {
-        const response = await fetch('{{ route("exports.latestLogs") }}', {
+        const response = await fetch('/api/export/logs', {
             headers: {
                 'Accept': 'application/json'
             }
