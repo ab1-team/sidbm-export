@@ -4,10 +4,11 @@
 
 @section('title', 'Log Export — SIDBM Export')
 
+@section('page-title', 'Log Export')
+
 @section('content')
 
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-  <h1 style="font-size:1.25rem; font-weight:700;">Log Export</h1>
   <a href="{{ route('export.index') }}" class="btn btn--primary" style="width:auto;">
     ← Dashboard
   </a>
@@ -54,69 +55,27 @@
 
 {{-- ── Tabel Log ── --}}
 <div class="card">
-  <div class="table-wrap">
+  <div class="table-wrap" style="padding: 0 8px;">
     <table>
       <thead>
         <tr>
-          <th>Kecamatan</th>
+          <th>Tanggal</th>
           <th>Jenis</th>
+          <th>Kecamatan</th>
           <th>Tahun</th>
-          <th>Bulan</th>
           <th>File</th>
-          <th>Records</th>
-          <th>Ukuran</th>
           <th>Status</th>
-          <th>Waktu</th>
-          <th>Oleh</th>
+          <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
-        @forelse ($logs as $log)
-          <tr>
-            <td>{{ $log->kecamatan_id }}</td>
-            <td>{{ ucfirst($log->jenis) }}</td>
-            <td>{{ $log->tahun }}</td>
-            <td>{{ $log->bulan_label }}</td>
-            <td>
-              @if ($log->file_url)
-                <a href="{{ $log->file_url }}" target="_blank" style="color:var(--biru-mid); font-size:.8rem;">
-                  {{ $log->filename }}
-                </a>
-              @else
-                <span class="text-muted">{{ $log->filename }}</span>
-              @endif
-            </td>
-            <td>{{ $log->record_count ? number_format($log->record_count) : '-' }}</td>
-            <td>{{ $log->file_size_human }}</td>
-            <td>
-              <span class="badge badge--{{ $log->status }}">{{ $log->status }}</span>
-              @if ($log->error_message)
-                <div style="font-size:.75rem; color:var(--merah); margin-top:2px;">
-                  {{ Str::limit($log->error_message, 60) }}
-                </div>
-              @endif
-            </td>
-            <td style="font-size:.8rem; color:var(--teks-muted);">
-              {{ $log->created_at?->format('d/m/Y H:i') }}
-            </td>
-            <td style="font-size:.8rem; color:var(--teks-muted);">
-              {{ $log->triggered_by ?? '-' }}
-            </td>
-          </tr>
-        @empty
-          <tr>
-            <td colspan="10" style="text-align:center; color:var(--teks-muted); padding:32px;">
-              Tidak ada log yang sesuai filter.
-            </td>
-          </tr>
-        @endforelse
+        <tr>
+          <td colspan="7" style="text-align:center; color:var(--teks-muted); padding:32px;">
+            Tidak ada log export
+          </td>
+        </tr>
       </tbody>
     </table>
-  </div>
-
-  {{-- Pagination --}}
-  <div style="margin-top:16px;">
-    {{ $logs->withQueryString()->links() }}
   </div>
 </div>
 
