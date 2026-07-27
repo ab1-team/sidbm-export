@@ -42,12 +42,18 @@
     }
     .navbar__brand { color: white; font-weight: 700; font-size: 1rem; text-decoration: none; }
     .navbar__brand span { color: #93C5FD; }
-    .navbar__nav   { display: flex; gap: 4px; }
+    .navbar__nav   { display: flex; gap: 4px; align-items: center; }
     .navbar__link  {
       color: #CBD5E1; text-decoration: none; padding: 6px 14px;
       border-radius: 6px; font-size: .875rem; transition: all .15s;
     }
     .navbar__link:hover, .navbar__link.active { background: rgba(255,255,255,.12); color: white; }
+    .navbar__user  { color: #93C5FD; font-size: .8rem; margin-left: 8px; margin-right: 4px; }
+    .navbar__logout {
+      background: none; border: none; color: #CBD5E1; cursor: pointer;
+      padding: 6px 14px; border-radius: 6px; font-size: .875rem; transition: all .15s;
+    }
+    .navbar__logout:hover { background: rgba(255,255,255,.12); color: white; }
 
     /* ── Layout ── */
     .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
@@ -173,6 +179,13 @@
       <a href="{{ route('export.logs') }}" class="navbar__link {{ request()->routeIs('export.logs') ? 'active' : '' }}">
         Log Export
       </a>
+      @auth
+        <span class="navbar__user">{{ Auth::user()->name }}</span>
+        <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+          @csrf
+          <button type="submit" class="navbar__logout">Logout</button>
+        </form>
+      @endauth
     </div>
   </nav>
 
