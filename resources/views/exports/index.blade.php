@@ -273,7 +273,7 @@ switch (jenis) {
       addLog('info', `Transaksi: ${t.success} bulan berhasil, ${t.failed} bulan dilewati`);
     }
 
-    setTimeout(() => location.reload(), 2000);
+    //setTimeout(() => location.reload(), 2000);
 
   } catch (err) {
     if (err.name !== 'AbortError') {

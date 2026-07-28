@@ -20,7 +20,7 @@ Route::prefix('export')->group(function () {
 });
 Route::prefix('batch')->group(function () {
 
-    Route::get('{batchId}/status', [BatchController::class, 'status']);
+    Route::get('{batchId}', [BatchController::class, 'status']);
 
     Route::post('{batchId}/cancel', [BatchController::class, 'cancel']);
 

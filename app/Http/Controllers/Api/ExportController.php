@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Services\SaldoExportService;
 use App\Services\TransaksiExportService;
 use Illuminate\Http\Request;
+use App\Jobs\ExportSaldoTahunJob;
+use App\Jobs\ExportTransaksiTahunJob;
 
 class ExportController extends Controller
 {
@@ -18,79 +20,56 @@ class ExportController extends Controller
     ) {
     }
 
-    public function saldo(Request $request)
+public function saldo(Request $request)
 {
     $request->validate([
         'kecamatan_id' => 'required|integer|min:1',
         'tahun'        => 'required|integer|min:2018',
     ]);
 
-    $result = $this->saldoService->export(
-        (int) $request->kecamatan_id,
-        (int) $request->tahun,
-        auth()->user()?->name ?? 'api'
-    );
+    $batch = Bus::batch([
+        new ExportSaldoTahunJob(
+            (int) $request->kecamatan_id,
+            (int) $request->tahun,
+            auth()->user()?->name ?? 'api'
+        ),
+    ])
+    ->name('export-saldo-' . now()->format('YmdHis'))
+    ->onQueue('export')
+    ->allowFailures()
+    ->dispatch();
 
     return response()->json([
-        'success' => $result['success'] ?? false,
-        'message' => $result['message'] ?? 'Export selesai',
-        'data'    => $result,
+        'success'    => true,
+        'message'    => 'Export saldo berjalan di background.',
+        'batch_id'   => $batch->id,
+        'total_jobs' => 1,
     ]);
 }
-
-    public function transaksi(Request $request)
+   public function transaksi(Request $request)
 {
     $request->validate([
         'kecamatan_id' => 'required|integer|min:1',
         'tahun'        => 'required|integer|min:2018',
     ]);
 
-    $result = $this->transaksiService->exportTahun(
-        (int) $request->kecamatan_id,
-        (int) $request->tahun,
-        auth()->user()?->name ?? 'api'
-    );
+    $batch = Bus::batch([
+        new ExportTransaksiTahunJob(
+            (int) $request->kecamatan_id,
+            (int) $request->tahun,
+            auth()->user()?->name ?? 'api'
+        ),
+    ])
+    ->name('export-transaksi-' . now()->format('YmdHis'))
+    ->onQueue('export')
+    ->allowFailures()
+    ->dispatch();
 
     return response()->json([
-        'success' => $result['success'] ?? false,
-        'message' => $result['message'] ?? 'Export selesai',
-        'data'    => $result,
-    ]);
-}
-    public function semua(Request $request)
-{
-    $request->validate([
-        'kecamatan_id' => 'required|integer|min:1',
-        'tahun'        => 'required|integer|min:2018',
-    ]);
-
-    $kecamatanId = (int) $request->kecamatan_id;
-    $tahun       = (int) $request->tahun;
-    $user        = auth()->user()?->name ?? 'api';
-
-    $saldo = $this->saldoService->export(
-        $kecamatanId,
-        $tahun,
-        $user
-    );
-
-    $transaksi = $this->transaksiService->exportTahun(
-        $kecamatanId,
-        $tahun,
-        $user
-    );
-
-    $success = ($saldo['success'] ?? false) && ($transaksi['success'] ?? false);
-
-    return response()->json([
-        'success' => $success,
-        'message' => $success
-            ? 'Export saldo dan transaksi berhasil.'
-            : 'Export selesai dengan beberapa kendala.',
-        'data' => [
-            'saldo'      => $saldo,
-            'transaksi'  => $transaksi,
-        ],
+        'success'    => true,
+        'message'    => 'Export transaksi berjalan di background.',
+        'batch_id'   => $batch->id,
+        'total_jobs' => 1,
     ]);
 }
 
