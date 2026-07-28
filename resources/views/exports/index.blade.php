@@ -397,6 +397,7 @@ async function loadLatestLogs() {
         });
 
         document.getElementById('latestLogs').innerHTML = html;
+        console.log('LOG UPDATED:', data.logs[0]);
 
     } catch (error) {
         console.error('Polling log gagal:', error);

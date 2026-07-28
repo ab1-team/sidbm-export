@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Jobs\ExportKecamatanTahunJob;
 use App\Models\Sidbm\Kecamatan;
 use Illuminate\Support\Facades\Bus;
 use App\Http\Controllers\Controller;
@@ -94,18 +93,27 @@ public function saldo(Request $request)
 
     $user = auth()->user()?->name ?? 'api';
 
-    $jobs = [];
+        $jobs = [];
 
-    foreach ($kecamatanList as $kec) {
-        foreach ($tahunList as $tahun) {
-            $jobs[] = new ExportKecamatanTahunJob(
-                $kec->id,
-                $tahun,
-                $jenis,
-                $user
-            );
-        }
+        foreach ($kecamatanList as $kec) {
+            foreach ($tahunList as $tahun) {
+            if ($jenis === 'saldo' || $jenis === 'semua') {
+        $jobs[] = new ExportSaldoTahunJob(
+            $kec->id,
+            $tahun,
+            $user
+        );
     }
+
+    if ($jenis === 'transaksi' || $jenis === 'semua') {
+        $jobs[] = new ExportTransaksiTahunJob(
+            $kec->id,
+            $tahun,
+            $user
+        );
+    }
+            }
+        }
 
     $batch = Bus::batch($jobs)
         ->name('export-' . now()->format('YmdHis'))
