@@ -4,8 +4,33 @@
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ExportController as ApiExportController;
+use App\Http\Controllers\Api\BatchController;
+use App\Http\Controllers\Api\LogController;
+
 
 Route::middleware('auth')->group(function () {
+
+    Route::prefix('api')->group(function () {
+
+    Route::prefix('export')->group(function () {
+
+        Route::post('/saldo', [ApiExportController::class, 'saldo']);
+        Route::post('/transaksi', [ApiExportController::class, 'transaksi']);
+        Route::post('/semua', [ApiExportController::class, 'semua']);
+        Route::post('/run-all', [ApiExportController::class, 'runAll']);
+        Route::get('/logs', [LogController::class, 'latest']);
+
+    });
+
+    Route::prefix('batch')->group(function () {
+
+        Route::get('{batchId}', [BatchController::class, 'status']);
+        Route::post('{batchId}/cancel', [BatchController::class, 'cancel']);
+
+    });
+
+});
 
     Route::get('/',        [ExportController::class, 'index'])->name('export.index');
     Route::post('/run',    [ExportController::class, 'run'])->name('export.run');
