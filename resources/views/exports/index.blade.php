@@ -179,7 +179,6 @@ const selKecamatan = document.getElementById('kecamatanId');
 const selTahun     = document.getElementById('tahun');
 
 const btnBulkExport = document.getElementById('btnBulkExport');
-const btnBulkCancel = document.getElementById('btnBulkCancel');
 const bulkProgress  = document.getElementById('bulkProgress');
 
 // Data kecamatan & tahun dikirim dari server (urutan sesuai daftar di dropdown)
@@ -319,17 +318,20 @@ async function startBulkExport() {
     const data = await response.json();
 
     if (!data.success) {
-      addLog('error', '❌ ' + data.message);
-      bulkRunning = false;
-      setBulkLoading(false);
-      return;
-    }
+  addLog('error', '❌ ' + data.message);
+  bulkRunning = false;
+  setBulkLoading(false);
+  return;
+}
 
+currentBatchId = data.batch_id;
 
+addLog(
+    'success',
+    `✅ Bulk export dimulai. Batch ID: ${currentBatchId}`
+);
 
-
-bulkRunning = false;
-setBulkLoading(false);
+pollBatchStatus();
 
   } catch (err) {
     addLog('error', '❌ Gagal memulai: ' + err.message);
@@ -344,7 +346,61 @@ function setBulkLoading(v) {
     exportMode.disabled = v;
 }
 
+
 // ── Util log ──
+
+async function pollBatchStatus(){
+
+    const timer = setInterval(async()=>{
+
+        try {
+
+          const response = await fetch(
+    `/api/batch/${currentBatchId}`
+);
+
+            const data = await response.json();
+
+
+            bulkProgress.innerHTML = `
+                Total: ${data.total}<br>
+                Selesai: ${data.finished}<br>
+                Pending: ${data.pending}<br>
+                Gagal: ${data.failed}
+            `;
+
+
+            if(data.finished){
+
+                clearInterval(timer);
+
+                bulkRunning = false;
+                setBulkLoading(false);
+
+                addLog(
+                    'success',
+                    '🎉 Semua export selesai'
+                );
+
+                loadLatestLogs();
+            }
+
+
+        } catch(error){
+
+            console.error(
+                'Polling batch gagal:',
+                error
+            );
+
+        }
+
+
+    },5000);
+
+}
+
+
 function addLog(type, message, detail = '') {
   const icons = { success: '✅', error: '❌', info: 'ℹ️' };
   const div   = document.createElement('div');
