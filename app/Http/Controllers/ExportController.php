@@ -3,7 +3,7 @@
 // app/Http/Controllers/ExportController.php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Log;
 use App\Models\ExportLog;
 use App\Models\Sidbm\Kecamatan;
 use App\Services\EnStorageService;
@@ -11,7 +11,8 @@ use App\Services\SaldoExportService;
 use App\Services\TransaksiExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
-use App\Jobs\ExportKecamatanTahunJob;
+use App\Jobs\ExportSaldoTahunJob;
+use App\Jobs\ExportTransaksiTahunJob;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Cache;
 
@@ -117,6 +118,10 @@ class ExportController extends Controller
      */
     public function runAll(Request $request)
     {
+
+    
+
+    
         $request->validate([
             'jenis' => 'required|in:saldo,transaksi,semua',
         ]);
@@ -142,12 +147,21 @@ foreach ($kecamatanList as $kec) {
 
     foreach ($tahunList as $tahun) {
 
-        $jobs[] = new ExportKecamatanTahunJob(
-            $kec->id,
-            $tahun,
-            $jenis,
-            $user
-        );
+        if (in_array($jenis, ['saldo', 'semua'])) {
+            $jobs[] = new ExportSaldoTahunJob(
+                $kec->id,
+                $tahun,
+                $user
+            );
+        }
+
+        if (in_array($jenis, ['transaksi', 'semua'])) {
+            $jobs[] = new ExportTransaksiTahunJob(
+                $kec->id,
+                $tahun,
+                $user
+            );
+        }
 
     }
 
@@ -233,22 +247,22 @@ $this->ensureQueueWorkerRunning();
         return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status'));
     }
 
-   private function ensureQueueWorkerRunning(): void
+private function ensureQueueWorkerRunning(): void
 {
+    Log::info('ensureQueueWorkerRunning dipanggil');
     $lockKey = 'queue-worker-running';
 
-    // Jangan spawn worker berkali-kali
     if (Cache::has($lockKey)) {
         return;
     }
 
-    Cache::put($lockKey, true, now()->addSeconds(30));
+    Cache::put($lockKey, true, now()->addHours(6));
 
     $php = PHP_BINARY;
     $artisan = base_path('artisan');
 
     $command = sprintf(
-        'start "" /B "%s" "%s" queue:work --queue=export --stop-when-empty',
+        'start "Laravel Queue Worker" cmd /k "%s %s queue:work database --queue=export --tries=1 --timeout=900"',
         $php,
         $artisan
     );
