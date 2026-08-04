@@ -18,6 +18,7 @@ class LogController extends Controller
         'tahun',
         'bulan',
         'filename',
+        'file_url',
         'status',
         'record_count',
         'file_size',

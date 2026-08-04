@@ -50,7 +50,7 @@ class SaldoExportService
             'tahun'        => $tahun,
             'bulan'        => null,
             'filename'     => "saldo_{$tahun}.json",
-            'status'       => 'pending',
+            'status'       => 'processing',
             'triggered_by' => $triggeredBy,
         ]);
         

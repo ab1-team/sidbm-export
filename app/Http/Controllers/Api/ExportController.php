@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Sidbm\Kecamatan;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Cache; // TAMBAHAN
-use Illuminate\Support\Facades\Log;   // TAMBAHAN
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Services\SaldoExportService;
 use App\Services\TransaksiExportService;
@@ -28,53 +29,144 @@ public function saldo(Request $request)
         'tahun'        => 'required|integer|min:2018',
     ]);
 
-    $batch = Bus::batch([
-        new ExportSaldoTahunJob(
-            (int) $request->kecamatan_id,
-            (int) $request->tahun,
-            auth()->user()?->name ?? 'api'
-        ),
-    ])
-    ->name('export-saldo-' . now()->format('YmdHis'))
-    ->onQueue('export')
-    ->allowFailures()
-    ->dispatch();
+    $result = $this->saldoService->export(
+        (int) $request->kecamatan_id,
+        (int) $request->tahun,
+        auth()->user()?->name ?? 'api'
+    );
 
     return response()->json([
-        'success'    => true,
-        'message'    => 'Export saldo berjalan di background.',
-        'batch_id'   => $batch->id,
-        'total_jobs' => 1,
+        'success'    => $result['success'],
+        'message'    => $result['message'],
+        'log_id'     => $result['log_id'] ?? null,
     ]);
 }
-   public function transaksi(Request $request)
+
+public function transaksi(Request $request)
 {
     $request->validate([
         'kecamatan_id' => 'required|integer|min:1',
         'tahun'        => 'required|integer|min:2018',
     ]);
 
-    $batch = Bus::batch([
-        new ExportTransaksiTahunJob(
-            (int) $request->kecamatan_id,
-            (int) $request->tahun,
-            auth()->user()?->name ?? 'api'
-        ),
-    ])
-    ->name('export-transaksi-' . now()->format('YmdHis'))
-    ->onQueue('export')
-    ->allowFailures()
-    ->dispatch();
+    $result = $this->transaksiService->exportTahun(
+        (int) $request->kecamatan_id,
+        (int) $request->tahun,
+        auth()->user()?->name ?? 'api'
+    );
 
     return response()->json([
-        'success'    => true,
-        'message'    => 'Export transaksi berjalan di background.',
-        'batch_id'   => $batch->id,
-        'total_jobs' => 1,
+        'success'  => $result['success'] > 0,
+        'message'  => $result['results'][0]['message'] ?? 'Export selesai',
+        'log_id'   => $result['results'][0]['log_id'] ?? null,
     ]);
 }
 
-    public function runAll(Request $request)
+public function exportBoth(Request $request)
+{
+    $request->validate([
+        'kecamatan_id' => 'required|integer|min:1',
+        'tahun'        => 'required|integer|min:2018',
+    ]);
+
+    $kecamatanId = (int) $request->kecamatan_id;
+    $tahun = (int) $request->tahun;
+    $user = auth()->user()?->name ?? 'api';
+
+    try {
+        $saldoResult = $this->saldoService->export($kecamatanId, $tahun, $user);
+    } catch (\Exception $e) {
+        $saldoResult = ['success' => false, 'message' => $e->getMessage()];
+    }
+
+    try {
+        $transaksiResult = $this->transaksiService->exportTahun($kecamatanId, $tahun, $user);
+    } catch (\Exception $e) {
+        $transaksiResult = ['success' => 0, 'failed' => 1, 'results' => [['success' => false, 'message' => $e->getMessage()]]];
+    }
+
+    $logs = \App\Models\ExportLog::latest()->limit(20)->get();
+
+    return response()->json([
+        'success'  => $saldoResult['success'] || $transaksiResult['success'] > 0,
+        'message'  => 'Export selesai',
+        'logs'     => $logs,
+        'results'  => [
+            'saldo' => $saldoResult,
+            'transaksi' => $transaksiResult,
+        ],
+    ]);
+}
+
+public function show(Request $request)
+{
+    $kecamatanId = $request->query('kecamatan');
+    $type = $request->query('type');
+    $tahun = $request->query('tahun');
+    $download = $request->query('download');
+
+    if (!$kecamatanId || !$type || !$tahun) {
+        abort(400, 'Parameter kecamatan, type, dan tahun diperlukan.');
+    }
+
+    $filename = "{$type}_{$tahun}.json";
+    $path = "exports/kecamatan_{$kecamatanId}/{$filename}";
+
+    if (!Storage::disk('local')->exists($path)) {
+        abort(404, 'File tidak ditemukan.');
+    }
+
+    $content = Storage::disk('local')->get($path);
+
+    if ($download === '1') {
+        return response($content, 200, [
+            'Content-Type' => 'application/json',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    return response($content, 200, [
+        'Content-Type' => 'application/json',
+        'Content-Disposition' => 'inline; filename="' . $filename . '"',
+    ]);
+}
+
+public function view(Request $request)
+{
+    $kecamatanId = $request->query('kecamatan');
+    $type = $request->query('type');
+    $tahun = $request->query('tahun');
+
+    if (!$kecamatanId || !$type || !$tahun) {
+        abort(400, 'Parameter kecamatan, type, dan tahun diperlukan.');
+    }
+
+    $filename = "{$type}_{$tahun}.json";
+    $path = "exports/kecamatan_{$kecamatanId}/{$filename}";
+
+    if (!Storage::disk('local')->exists($path)) {
+        abort(404, 'File tidak ditemukan.');
+    }
+
+    $content = json_decode(Storage::disk('local')->get($path), true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        abort(400, 'File bukan JSON yang valid.');
+    }
+
+    $isSaldo = $type === 'saldo';
+
+    return view('exports.viewer', [
+        'filename' => $path,
+        'data' => $content,
+        'isSaldo' => $isSaldo,
+        'kecamatanId' => $kecamatanId,
+        'type' => $type,
+        'tahun' => $tahun,
+    ]);
+}
+
+public function runAll(Request $request)
 {
     $request->validate([
         'jenis' => 'required|in:saldo,transaksi,semua',
@@ -95,27 +187,19 @@ public function saldo(Request $request)
 
     $user = auth()->user()?->name ?? 'api';
 
-        $jobs = [];
+    $jobs = [];
 
-        foreach ($kecamatanList as $kec) {
-            foreach ($tahunList as $tahun) {
+    foreach ($kecamatanList as $kec) {
+        foreach ($tahunList as $tahun) {
             if ($jenis === 'saldo' || $jenis === 'semua') {
-        $jobs[] = new ExportSaldoTahunJob(
-            $kec->id,
-            $tahun,
-            $user
-        );
-    }
+                $jobs[] = new ExportSaldoTahunJob($kec->id, $tahun, $user);
+            }
 
-    if ($jenis === 'transaksi' || $jenis === 'semua') {
-        $jobs[] = new ExportTransaksiTahunJob(
-            $kec->id,
-            $tahun,
-            $user
-        );
-    }
+            if ($jenis === 'transaksi' || $jenis === 'semua') {
+                $jobs[] = new ExportTransaksiTahunJob($kec->id, $tahun, $user);
             }
         }
+    }
 
     $batch = Bus::batch($jobs)
         ->name('export-' . now()->format('YmdHis'))
@@ -123,7 +207,7 @@ public function saldo(Request $request)
         ->allowFailures()
         ->dispatch();
 
-    $this->ensureQueueWorkerRunning(); // TAMBAHAN
+    $this->triggerQueueWorker();
 
     return response()->json([
         'success'    => true,
@@ -133,37 +217,45 @@ public function saldo(Request $request)
     ]);
 }
 
-// ── TAMBAHAN: method baru, tidak mengubah apapun yang sudah ada ──
-private function ensureQueueWorkerRunning(): void
+private function triggerQueueWorker(): void
 {
-    Log::info('ensureQueueWorkerRunning dipanggil');
+    $lockFile = storage_path('logs/queue_worker.lock');
+    $lockData = null;
 
-    if ($this->isWorkerProcessRunning()) {
-        Log::info('Worker sudah jalan, skip spawn.');
-        return;
+    if (file_exists($lockFile)) {
+        $lockData = json_decode(file_get_contents($lockFile), true);
+        $pid = $lockData['pid'] ?? null;
+
+        if ($pid && $this->isProcessRunning($pid)) {
+            return;
+        }
     }
 
-    $php     = PHP_BINARY;
+    $php = PHP_BINARY;
     $artisan = base_path('artisan');
 
     $command = sprintf(
-        'start "Laravel Queue Worker" cmd /k "%s %s queue:work database --queue=export --tries=1 --timeout=900"',
+        'start "" /B "%s" "%s" queue:work database --queue=export --tries=1 --timeout=900 --stop-when-empty > NUL 2>&1',
         $php,
         $artisan
     );
 
     pclose(popen($command, 'r'));
+
+    $pid = getmypid();
+    file_put_contents($lockFile, json_encode([
+        'pid' => $pid,
+        'started_at' => date('Y-m-d H:i:s'),
+    ]));
 }
 
-private function isWorkerProcessRunning(): bool
+private function isProcessRunning(int $pid): bool
 {
-    // Cek proses PHP yang command line-nya mengandung "queue:work" dan "export"
-    $output = shell_exec('wmic process where "name=\'php.exe\'" get CommandLine 2>nul');
-
-    if (!$output) {
-        return false;
+    if (stristr(PHP_OS, 'WIN')) {
+        $output = shell_exec("tasklist /FI \"PID eq $pid\" 2>nul");
+        return $output && strpos($output, (string) $pid) !== false;
     }
 
-    return str_contains($output, 'queue:work') && str_contains($output, 'export');
+    return posix_kill($pid, 0);
 }
 }

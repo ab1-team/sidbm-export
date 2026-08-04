@@ -17,9 +17,10 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/saldo', [ApiExportController::class, 'saldo']);
         Route::post('/transaksi', [ApiExportController::class, 'transaksi']);
-        Route::post('/semua', [ApiExportController::class, 'semua']);
+        Route::post('/semua', [ApiExportController::class, 'exportBoth']);
         Route::post('/run-all', [ApiExportController::class, 'runAll']);
         Route::get('/logs', [LogController::class, 'latest']);
+        Route::get('/files', [ApiExportController::class, 'show']);
 
     });
 
@@ -33,6 +34,8 @@ Route::middleware('auth')->group(function () {
 });
 
     Route::get('/',        [ExportController::class, 'index'])->name('export.index');
+
+
     Route::post('/run',    [ExportController::class, 'run'])->name('export.run');
     Route::get('/logs',    [ExportController::class, 'logs'])->name('export.logs');
 
