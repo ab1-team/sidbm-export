@@ -33,12 +33,6 @@ class ExportController extends Controller
         $tahunList   = range(2018, $batasArsip - 1);
         $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
 
-        // Ringkasan log terbaru
-        $recentLogs = ExportLog::with([])
-            ->latest()
-            ->limit(20)
-            ->get();
-
         // Statistik
         $stats = [
             'total_success' => ExportLog::where('status', 'success')->count(),
@@ -49,7 +43,7 @@ class ExportController extends Controller
         $enstoragePing = $this->enstorage->ping();
 
         return view('exports.index', compact(
-            'tahunList', 'kecamatanList', 'recentLogs', 'stats', 'enstoragePing', 'batasArsip'
+            'tahunList', 'kecamatanList', 'stats', 'enstoragePing', 'batasArsip'
         ));
     }
 
@@ -262,7 +256,7 @@ private function ensureQueueWorkerRunning(): void
     $artisan = base_path('artisan');
 
     $command = sprintf(
-        'start "Laravel Queue Worker" cmd /k "%s %s queue:work database --queue=export --tries=1 --timeout=900"',
+        'start "Laravel Queue Worker" cmd /k "%s %s queue:work database --queue=export --tries=1 --timeout=900 --stop-when-empty"',
         $php,
         $artisan
     );
