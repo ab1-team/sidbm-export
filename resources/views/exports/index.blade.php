@@ -138,27 +138,8 @@
         <a href="{{ route('export.logs') }}">Lihat semua →</a>
       </h2>
 
-      <div id="latestLogs">
-        @forelse ($recentLogs as $log)
-          <div class="log-row">
-            <div>
-              <div class="log-row__title">
-                Kec. {{ $log->kecamatan_id }} — {{ ucfirst($log->jenis) }} {{ $log->tahun }}
-                @if ($log->bulan) / {{ $log->bulan_label }} @endif
-              </div>
-              <div class="log-row__meta">
-                {{ $log->filename }} • {{ $log->file_size_human }}
-                @if($log->record_count) • {{ number_format($log->record_count) }} records @endif
-              </div>
-            </div>
-            <div style="text-align:right; flex-shrink:0; margin-left:12px;">
-              <span class="badge badge--{{ $log->status }}">{{ $log->status }}</span>
-              <div class="log-row__meta" style="margin-top:4px;">{{ $log->created_at?->diffForHumans() }}</div>
-            </div>
-          </div>
-        @empty
-          <p class="text-muted">Belum ada log export.</p>
-        @endforelse
+      <div id="latestLogs" style="min-height:100px;">
+        <p class="text-muted">Memuat...</p>
       </div>
     </div>
   </div>
@@ -185,6 +166,7 @@ const tahunData      = @json(collect($tahunList)->sort()->values());
 
 let manualAbortController = null;
 let bulkRunning            = false;
+let currentBatchId         = null;
 
 exportMode.addEventListener('change', () => {
   const mode = exportMode.value;
@@ -212,6 +194,22 @@ btnExport.addEventListener('click', async () => {
   const tahun       = selTahun.value;
   const jenis       = document.querySelector('input[name="jenis"]:checked').value;
 
+let url = '';
+
+switch (jenis) {
+    case 'saldo':
+        url = '/api/export/saldo';
+        break;
+
+    case 'transaksi':
+        url = '/api/export/transaksi';
+        break;
+
+    case 'semua':
+        url = '/api/export/semua';
+        break;
+}
+
   manualAbortController = new AbortController();
   setManualLoading(true);
   cardLog.style.display = 'block';
@@ -219,14 +217,17 @@ btnExport.addEventListener('click', async () => {
   addLog('info', `🚀 Memulai export ${jenis} — Kecamatan ${kecamatanId}, Tahun ${tahun}...`);
 
   try {
-    const response = await fetch('{{ route("export.run") }}', {
+    const response = await fetch(url, {
       method : 'POST',
       headers: {
         'Content-Type'    : 'application/json',
         'X-CSRF-TOKEN'    : document.querySelector('meta[name="csrf-token"]').content,
         'Accept'          : 'application/json',
       },
-      body: JSON.stringify({ kecamatan_id: kecamatanId, tahun, jenis }),
+      body: JSON.stringify({
+        kecamatan_id: kecamatanId,
+        tahun: tahun
+      }),
       signal: manualAbortController.signal,
     });
 
@@ -244,10 +245,10 @@ btnExport.addEventListener('click', async () => {
     }
     if (data.results?.transaksi) {
       const t = data.results.transaksi;
-      addLog('info', `Transaksi: ${t.success} bulan berhasil, ${t.failed} bulan dilewati`);
+      addLog(t.success > 0 ? 'success' : 'error', `Transaksi: ${t.success} berhasil, ${t.failed} gagal`);
     }
 
-    setTimeout(() => location.reload(), 2000);
+    loadLatestLogs();
 
   } catch (err) {
     if (err.name !== 'AbortError') {
@@ -273,15 +274,14 @@ async function startBulkExport() {
 
   bulkRunning = true;
   const jenis = document.querySelector('input[name="jenis"]:checked').value;
-
   cardLog.style.display = 'block';
   logContainer.innerHTML = '';
-  addLog('info', `🚀 Mengirim ${kecamatanData.length} kecamatan × ${tahunData.length} tahun ke antrean background...`);
+  addLog('info', `🚀 Memulai export semua...`);
 
   setBulkLoading(true);
 
   try {
-    const response = await fetch('{{ route("export.run-all") }}', {
+    const response = await fetch('/api/export/run-all', {
       method : 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -294,20 +294,53 @@ async function startBulkExport() {
     const data = await response.json();
 
     if (!data.success) {
-      addLog('error', '❌ ' + data.message);
-      bulkRunning = false;
-      setBulkLoading(false);
-      return;
+        addLog('error', '❌ ' + data.message);
+        bulkRunning = false;
+        setBulkLoading(false);
+        return;
     }
+
+    addLog('success', `✅ Export dimulai (${data.total_jobs} job dalam antrean)`);
+    currentBatchId = data.batch_id;
+    pollBatchAndLogs();
 
     bulkRunning = false;
     setBulkLoading(false);
 
   } catch (err) {
-    addLog('error', '❌ Gagal memulai: ' + err.message);
+    addLog('error', '❌ Gagal: ' + err.message);
     bulkRunning = false;
     setBulkLoading(false);
   }
+}
+
+async function pollBatchAndLogs() {
+    const timer = setInterval(async () => {
+        try {
+            const response = await fetch(`/api/batch/${currentBatchId}`);
+            const data = await response.json();
+
+            bulkProgress.innerHTML = `
+                Total: ${data.total}<br>
+                Selesai: ${data.finished}<br>
+                Pending: ${data.pending}<br>
+                Gagal: ${data.failed}
+            `;
+
+            loadLatestLogs();
+
+            if (data.finished >= data.total) {
+                clearInterval(timer);
+                addLog('success', '🎉 Semua export selesai!');
+                bulkRunning = false;
+                setBulkLoading(false);
+                loadLatestLogs();
+            }
+
+        } catch (error) {
+            console.error('Polling gagal:', error);
+        }
+    }, 3000);
 }
 
 function setBulkLoading(v) {
@@ -316,46 +349,114 @@ function setBulkLoading(v) {
 }
 
 function addLog(type, message, detail = '') {
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-  const div   = document.createElement('div');
-  div.className = `log-item log-item--${type}`;
-  div.innerHTML = `
-    <span>${icons[type]}</span>
-    <div>
-      <div>${message}</div>
-      ${detail ? `<div class="log-item__detail">${detail}</div>` : ''}
-    </div>`;
-  logContainer.appendChild(div);
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    const div = document.createElement('div');
+    div.className = `log-item log-item--${type}`;
+    div.innerHTML = `
+        <span>${icons[type]}</span>
+        <div>
+            <div>${message}</div>
+            ${detail ? `<div class="log-item__detail">${detail}</div>` : ''}
+        </div>`;
+    logContainer.appendChild(div);
+}
+
+function formatBytes(bytes) {
+    if (!bytes) return '-';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+    return (bytes / 1048576).toFixed(2) + ' MB';
+}
+
+function formatTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    if (diff < 60) return diff + ' detik lalu';
+    if (diff < 3600) return Math.floor(diff / 60) + ' menit lalu';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' jam lalu';
+    return Math.floor(diff / 86400) + ' hari lalu';
 }
 
 async function loadLatestLogs() {
-  try {
-    const response = await fetch('{{ route("exports.latestLogs") }}', {
-      headers: { 'Accept': 'application/json' }
-    });
-    const data = await response.json();
-    if (!data.success) return;
+    try {
+        const response = await fetch('/api/export/logs', {
+            headers: { 'Accept': 'application/json' }
+        });
 
-    let html = '';
-    data.logs.forEach(log => {
-      html += `
-        <div class="log-row">
-          <div>
-            <div class="log-row__title">
-              Kec. ${log.kecamatan_id} — ${log.jenis} ${log.tahun}
-              ${log.bulan ? '/ ' + log.bulan : ''}
-            </div>
-            <div class="log-row__meta">${log.filename}</div>
-          </div>
-          <div style="text-align:right;">
-            <span class="badge badge--${log.status}">${log.status}</span>
-          </div>
-        </div>`;
-    });
-    document.getElementById('latestLogs').innerHTML = html;
-  } catch (error) {
-    console.error('Polling log gagal:', error);
-  }
+        if (!response.ok) {
+            console.error('HTTP error:', response.status);
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.logs) {
+            return;
+        }
+
+        if (data.logs.length === 0) {
+            document.getElementById('latestLogs').innerHTML = '<div style="padding:20px;text-align:center;color:#999;">Belum ada export</div>';
+            return;
+        }
+
+        let html = '';
+        data.logs.forEach(log => {
+            const isSuccess = log.status === 'success';
+            const isFailed = log.status === 'failed';
+            const fileSize = formatBytes(log.file_size);
+            const timeAgo = formatTimeAgo(log.created_at);
+            const badgeColor = isSuccess ? 'background:#d4edda;color:#155724;' : (isFailed ? 'background:#f8d7da;color:#721c24;' : 'background:#fff3cd;color:#856404;');
+            const parts = (log.filename || '').split('_');
+            const type = parts[0] || '';
+            const tahun = (parts[1] || '').replace('.json', '');
+            const openBtn = isSuccess && log.filename
+                ? `<button onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#e3f2fd;">Buka</button>`
+                : '';
+            const downloadBtn = isSuccess && log.filename
+                ? `<button onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#f8f9fa;">Download</button>`
+                : '';
+
+            html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 5px;border-bottom:1px solid #eee;">
+                    <div>
+                        <div style="font-size:.9rem;font-weight:500;">
+                            Kec. ${log.kecamatan_id} — ${log.jenis} ${log.tahun}
+                            ${log.bulan ? '/ ' + log.bulan : ''}
+                        </div>
+                        <div style="font-size:.75rem;color:#666;">
+                            ${log.filename || '-'}
+                            ${log.file_size ? ' • ' + fileSize : ''}
+                            ${log.record_count ? ' • ' + log.record_count.toLocaleString() + ' records' : ''}
+                        </div>
+                        ${log.error_message ? `<div style="font-size:.7rem;color:red;margin-top:2px;">Error: ${log.error_message}</div>` : ''}
+                    </div>
+                    <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+                        <span class="badge" style="${badgeColor}padding:3px 8px;border-radius:3px;font-size:.75rem;">${log.status}</span>
+                        <div style="margin-top:4px;">
+                            ${openBtn}
+                            ${downloadBtn}
+                        </div>
+                        <div style="font-size:.65rem;color:#999;margin-top:3px;">${timeAgo}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('latestLogs').innerHTML = html;
+
+    } catch (error) {
+        console.error('Polling log gagal:', error);
+    }
+}
+
+function downloadLog(kecamatanId, filename) {
+    if (!filename || !kecamatanId) return;
+    const parts = filename.split('_');
+    const type = parts[0];
+    const tahun = parts[1].replace('.json', '');
+    window.location.href = `/api/export/files?kecamatan=${kecamatanId}&type=${type}&tahun=${tahun}&download=1`;
 }
 
 loadLatestLogs();
