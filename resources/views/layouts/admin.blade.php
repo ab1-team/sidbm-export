@@ -67,6 +67,16 @@
       margin-bottom: 18px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
+    .sidebar__close {
+      display: none;
+      margin-left: auto;
+      width: 36px; height: 36px;
+      border: 0; border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      color: white; cursor: pointer;
+      align-items: center; justify-content: center;
+    }
+    .sidebar__close svg { width: 18px; height: 18px; stroke-width: 2; }
     .sidebar__brand-logo {
       width: 40px; height: 40px;
       border-radius: 10px;
@@ -113,7 +123,49 @@
       font-weight: 600;
     }
 
-    /* ── Main wrapper ── */
+    .admin-shell.sidebar-collapsed .sidebar {
+      width: 76px;
+      padding-left: 10px;
+      padding-right: 10px;
+      overflow: hidden;
+    }
+
+    .admin-shell.sidebar-collapsed .sidebar__brand {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .admin-shell.sidebar-collapsed .sidebar__brand-text,
+    .admin-shell.sidebar-collapsed .sidebar__group-label,
+    .admin-shell.sidebar-collapsed .sidebar__link span {
+      display: none;
+    }
+
+    .admin-shell.sidebar-collapsed .sidebar__link {
+      justify-content: center;
+      gap: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .admin-shell.sidebar-collapsed .navbar__menu {
+      transform: rotate(180deg);
+    }
+
+    .navbar__menu {
+      width: 40px; height: 40px;
+      border: 0;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--teks-muted);
+      background: transparent;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, transform .2s ease;
+    }
+    .navbar__menu:hover { background: var(--content-bg); color: var(--teks); }
+    .navbar__menu svg { width: 20px; height: 20px; stroke-width: 1.8; }
+
     .admin-main {
       flex: 1;
       min-width: 0;
@@ -187,7 +239,14 @@
     .navbar__user-name   { font-size: .875rem; font-weight: 600; color: var(--teks); }
     .navbar__user-role   { font-size: .72rem; color: var(--teks-muted); }
 
-    /* ── Content ── */
+    .admin-footer {
+      padding: 16px 32px;
+      border-top: 1px solid var(--border);
+      background: var(--navbar);
+      color: var(--teks-muted);
+      font-size: .78rem;
+      text-align: center;
+    }
     .admin-content {
       padding: 28px 32px 48px;
       flex: 1;
@@ -220,6 +279,7 @@
       padding: 22px;
       box-shadow: var(--shadow-card);
       margin-bottom: 20px;
+      min-width: 0;
     }
     .card__title {
       font-size: 1rem;
@@ -299,20 +359,26 @@
     /* ── Table ── */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: .875rem; }
-    th { background: var(--sidebar); color: white; padding: 11px 14px; text-align: left; font-weight: 600; font-size: .8rem; }
+    th { background: var(--sidebar); color: white; padding: 11px 14px; text-align: left; font-weight: 600; font-size: .8rem; white-space: nowrap; }
     th:first-child { border-top-left-radius: 8px; }
     th:last-child  { border-top-right-radius: 8px; }
-    td { padding: 11px 14px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:hover td { background: #F9FAFB; }
+    .table-link { color: var(--sidebar); font-size: .82rem; }
+    .text-right { text-align: right; }
+    .text-muted { color: var(--teks-muted); }
+    .text-sm    { font-size: .8rem; }
+    .error-msg  { font-size: .75rem; color: #DC2626; margin-top: 3px; }
 
     /* ── Stats ── */
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
     .stat-card  {
       background: white; border: 1px solid var(--border); border-radius: var(--radius-md);
-      padding: 22px; box-shadow: var(--shadow-card);
+      padding: 22px; box-shadow: var(--shadow-card); min-width: 0;
     }
-    .stat-card__num   { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .stat-card__num   { font-size: 2rem; font-weight: 700; line-height: 1; overflow-wrap: anywhere; }
     .stat-card__label { font-size: .82rem; color: var(--teks-muted); margin-top: 8px; }
+    .stat--total .stat-card__num { color: var(--sidebar); }
     .stat--success .stat-card__num { color: #16A34A; }
     .stat--failed  .stat-card__num { color: #DC2626; }
     .stat--pending .stat-card__num { color: #D97706; }
@@ -326,7 +392,8 @@
     .ping__dot--ok { background: #16A34A; }
 
     /* ── Two-column area ── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+    .grid-2 > * { min-width: 0; }
 
     /* ── Log row ── */
     .log-row {
@@ -346,12 +413,64 @@
     @media (max-width: 1024px) {
       .grid-2, .form-row--3 { grid-template-columns: 1fr; }
       .form-row--2          { grid-template-columns: 1fr; }
-      .stats-grid           { grid-template-columns: 1fr; }
+      .stats-grid           { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .navbar  { padding: 0 18px; }
-      .admin-content { padding: 20px 18px 36px; }
+      html, body { font-size: 15px; }
+      .sidebar {
+        display: flex;
+        position: fixed;
+        left: 0; top: 0;
+        z-index: 60;
+        width: 76px;
+        padding: 24px 8px;
+        transition: width .2s ease, padding .2s ease;
+        border-radius: 0 16px 16px 0;
+      }
+      .admin-shell.sidebar-open .sidebar { width: 240px; padding: 24px 18px; }
+      .admin-shell.sidebar-open::after {
+        content: '';
+        position: fixed; inset: 0;
+        background: rgba(15,23,42,.45);
+        z-index: 55;
+      }
+      .sidebar__close { display: inline-flex; }
+      .sidebar__link  { font-size: .88rem; padding: 10px 14px; }
+      .sidebar { justify-content: stretch; }
+      .admin-shell:not(.sidebar-open) .sidebar__brand { justify-content: center; padding: 6px 0 24px; }
+      .admin-shell:not(.sidebar-open) .sidebar__link { justify-content: center; padding: 11px 0; }
+      .admin-shell:not(.sidebar-open) .sidebar__close { display: none; }
+      .admin-shell.sidebar-open .sidebar__close { display: inline-flex; margin-left: auto; }
+      .sidebar__brand-text strong { font-size: .95rem; }
+      .sidebar__brand-text small  { font-size: .68rem; }
+      .sidebar__group-label { font-size: .68rem; padding: 12px 10px 6px; }
+      .admin-shell:not(.sidebar-open) .sidebar__link span,
+      .admin-shell:not(.sidebar-open) .sidebar__brand-text,
+      .admin-shell:not(.sidebar-open) .sidebar__group-label { display: none; }
+      .admin-main { margin-left: 76px; }
+      .admin-shell.sidebar-open .admin-main { margin-left: 0; }
+      .sidebar { height: 100vh; overflow-y: auto; }
+      .admin-shell:not(.sidebar-open) .sidebar { min-height: 100%; height: auto; align-self: stretch; }
+      .admin-content { padding: 16px 14px 28px; }
+      .admin-footer  { padding: 10px 14px; font-size: .72rem; }
+
+      .navbar  { padding: 0 16px; height: 60px; }
+      .navbar__title { font-size: .95rem; }
+      .admin-content { padding: 18px 16px 32px; }
+      .admin-footer { padding: 14px 16px; font-size: .78rem; }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .stat-card { padding: 14px 12px; }
+      .stat-card__num   { font-size: 1.5rem; }
+      .stat-card__label { font-size: .76rem; margin-top: 4px; }
+
+      .card, .form-card { padding: 16px; }
+      .card__title { font-size: .95rem; }
+      .page-header h1 { font-size: 1.05rem; }
+      .page-header__sub { font-size: .8rem; }
     }
   </style>
 </head>
@@ -367,6 +486,11 @@
           <strong>SIDBM</strong>
           <small>Export</small>
         </div>
+        <button type="button" class="sidebar__close" aria-label="Tutup sidebar" onclick="this.closest('.admin-shell').classList.remove('sidebar-open')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 6l12 12M6 18L18 6"/>
+          </svg>
+        </button>
       </div>
 
       <div class="sidebar__group-label">Menu Utama</div>
@@ -413,7 +537,14 @@
 
       {{-- Navbar --}}
       <header class="navbar">
-        <div class="navbar__title">@yield('navbar_title', 'Dashboard')</div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button type="button" class="navbar__menu" aria-label="Buka atau tutup sidebar" aria-expanded="true" onclick="var s=this.closest('.admin-shell'); if(window.innerWidth<=768){s.classList.toggle('sidebar-open');}else{s.classList.toggle('sidebar-collapsed');} this.setAttribute('aria-expanded', !s.classList.contains('sidebar-collapsed') && (window.innerWidth>768 || s.classList.contains('sidebar-open')))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+          <div class="navbar__title">@yield('navbar_title', 'Dashboard')</div>
+        </div>
 
         <div class="navbar__right">
           <div class="navbar__icon" title="Notifikasi">
@@ -439,11 +570,14 @@
       </header>
 
       {{-- Content --}}
-      <main class="admin-content">
-        @yield('content')
-      </main>
+       <main class="admin-content">
+         @yield('content')
+       </main>
 
-    </div>
+       <footer class="admin-footer">abt-pkl-2026</footer>
+
+     </div>
+
   </div>
 
 </body>

@@ -40,6 +40,7 @@ class ExportController extends Controller
 
         // Statistik
         $stats = [
+            'total'         => ExportLog::count(),
             'total_success' => ExportLog::where('status', 'success')->count(),
             'total_failed'  => ExportLog::where('status', 'failed')->count(),
             'total_pending' => ExportLog::where('status', 'pending')->count(),

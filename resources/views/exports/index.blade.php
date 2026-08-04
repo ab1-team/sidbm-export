@@ -18,6 +18,10 @@
 
 {{-- ── Statistik ── --}}
 <div class="stats-grid">
+  <div class="stat-card stat--total">
+    <div class="stat-card__num">{{ $stats['total'] }}</div>
+    <div class="stat-card__label">Total Export</div>
+  </div>
   <div class="stat-card stat--success">
     <div class="stat-card__num">{{ $stats['total_success'] }}</div>
     <div class="stat-card__label">Berhasil</div>
@@ -67,7 +71,7 @@
     <div id="manualSection">
       <div class="form-group">
         <label class="form-label" for="kecamatanId">Kecamatan</label>
-        <select id="kecamatanId" class="form-select">
+        <select id="kecamatanId" name="kecamatan_id" class="form-select select2">
           <option value="">-- Pilih Kecamatan --</option>
           @foreach ($kecamatanList as $kec)
             <option value="{{ $kec->id }}">{{ $kec->id }} — {{ $kec->nama_kecamatan }}</option>
@@ -77,7 +81,7 @@
 
       <div class="form-group">
         <label class="form-label" for="tahun">Tahun</label>
-        <select id="tahun" class="form-select">
+      <select id="tahun" name="tahun" class="form-select select2">
           <option value="">-- Pilih Tahun --</option>
           @foreach ($tahunList as $t)
             <option value="{{ $t }}">{{ $t }}</option>
@@ -87,6 +91,20 @@
           Data sebelum tahun {{ $batasArsip }} tersedia untuk diarsip
         </p>
       </div>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+      $('.select2').select2({
+          placeholder: "Pilih opsi...",
+          allowClear: true,
+          width: '100%'
+      });
+  });
+</script>
 
       <button id="btnExport" class="btn btn--primary btn--full" disabled>
         <span id="btnText">⬇ Jalankan Export</span>

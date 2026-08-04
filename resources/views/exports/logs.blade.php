@@ -10,7 +10,6 @@
     <h1>Log Export</h1>
     <div class="page-header__sub">Riwayat aktivitas export data</div>
   </div>
-  <a href="{{ route('export.index') }}" class="btn btn--primary" style="width:auto;">← Dashboard</a>
 </div>
 
 <div class="card">
@@ -61,7 +60,7 @@
           <th>Tahun</th>
           <th>Bulan</th>
           <th>File</th>
-          <th>Records</th>
+          <th>Record</th>
           <th>Ukuran</th>
           <th>Status</th>
           <th>Waktu</th>
@@ -77,29 +76,27 @@
             <td>{{ $log->bulan_label }}</td>
             <td>
               @if ($log->file_url)
-                <a href="{{ $log->file_url }}" target="_blank" style="color:var(--sidebar); font-size:.82rem;">
+                <a href="{{ $log->file_url }}" target="_blank" class="table-link">
                   {{ $log->filename }}
                 </a>
               @else
                 <span class="text-muted">{{ $log->filename }}</span>
               @endif
             </td>
-            <td>{{ $log->record_count ? number_format($log->record_count) : '-' }}</td>
+            <td class="text-right">{{ $log->record_count ? number_format($log->record_count) : '-' }}</td>
             <td>{{ $log->file_size_human }}</td>
             <td>
               <span class="badge badge--{{ $log->status }}">{{ $log->status }}</span>
               @if ($log->error_message)
-                <div style="font-size:.75rem; color:#DC2626; margin-top:3px;">
-                  {{ Str::limit($log->error_message, 60) }}
-                </div>
+                <div class="error-msg">{{ Str::limit($log->error_message, 60) }}</div>
               @endif
             </td>
-            <td style="font-size:.8rem; color:var(--teks-muted);">{{ $log->created_at?->format('d/m/Y H:i') }}</td>
-            <td style="font-size:.8rem; color:var(--teks-muted);">{{ $log->triggered_by ?? '-' }}</td>
+            <td class="text-muted text-sm">{{ $log->created_at?->format('d/m/Y H:i') }}</td>
+            <td class="text-muted text-sm">{{ $log->triggered_by ?? '-' }}</td>
           </tr>
         @empty
           <tr>
-            <td colspan="10" style="text-align:center; color:var(--teks-muted); padding:32px;">Tidak ada log yang sesuai filter.</td>
+            <td colspan="11" style="text-align:center; color:var(--teks-muted); padding:32px;">Tidak ada log yang sesuai filter.</td>
           </tr>
         @endforelse
       </tbody>
