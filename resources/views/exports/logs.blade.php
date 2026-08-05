@@ -1,19 +1,17 @@
-{{-- resources/views/exports/logs.blade.php --}}
-
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Log Export — SIDBM Export')
+@section('navbar_title', 'Log Export')
 
 @section('content')
 
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-  <h1 style="font-size:1.25rem; font-weight:700;">Log Export</h1>
-  <a href="{{ route('export.index') }}" class="btn btn--primary" style="width:auto;">
-    ← Dashboard
-  </a>
+<div class="page-header">
+  <div>
+    <h1>Log Export</h1>
+    <div class="page-header__sub">Riwayat aktivitas export data</div>
+  </div>
 </div>
 
-{{-- ── Filter ── --}}
 <div class="card">
   <h2 class="card__title">Filter</h2>
   <form method="GET" action="{{ route('export.logs') }}">
@@ -48,11 +46,10 @@
       </div>
     </div>
     <button type="submit" class="btn btn--primary" style="width:auto;">Filter</button>
-    <a href="{{ route('export.logs') }}" style="margin-left:8px; font-size:.875rem; color:var(--teks-muted);">Reset</a>
+    <a href="{{ route('export.logs') }}" style="margin-left:10px; font-size:.875rem; color:var(--teks-muted);">Reset</a>
   </form>
 </div>
 
-{{-- ── Tabel Log ── --}}
 <div class="card">
   <div class="table-wrap">
     <table>
@@ -63,7 +60,7 @@
           <th>Tahun</th>
           <th>Bulan</th>
           <th>File</th>
-          <th>Records</th>
+          <th>Record</th>
           <th>Ukuran</th>
           <th>Status</th>
           <th>Waktu</th>
@@ -79,45 +76,34 @@
             <td>{{ $log->bulan_label }}</td>
             <td>
               @if ($log->file_url)
-                <a href="{{ $log->file_url }}" target="_blank" style="color:var(--biru-mid); font-size:.8rem;">
+                <a href="{{ $log->file_url }}" target="_blank" class="table-link">
                   {{ $log->filename }}
                 </a>
               @else
                 <span class="text-muted">{{ $log->filename }}</span>
               @endif
             </td>
-            <td>{{ $log->record_count ? number_format($log->record_count) : '-' }}</td>
+            <td class="text-right">{{ $log->record_count ? number_format($log->record_count) : '-' }}</td>
             <td>{{ $log->file_size_human }}</td>
             <td>
               <span class="badge badge--{{ $log->status }}">{{ $log->status }}</span>
               @if ($log->error_message)
-                <div style="font-size:.75rem; color:var(--merah); margin-top:2px;">
-                  {{ Str::limit($log->error_message, 60) }}
-                </div>
+                <div class="error-msg">{{ Str::limit($log->error_message, 60) }}</div>
               @endif
             </td>
-            <td style="font-size:.8rem; color:var(--teks-muted);">
-              {{ $log->created_at?->format('d/m/Y H:i') }}
-            </td>
-            <td style="font-size:.8rem; color:var(--teks-muted);">
-              {{ $log->triggered_by ?? '-' }}
-            </td>
+            <td class="text-muted text-sm">{{ $log->created_at?->format('d/m/Y H:i') }}</td>
+            <td class="text-muted text-sm">{{ $log->triggered_by ?? '-' }}</td>
           </tr>
         @empty
           <tr>
-            <td colspan="10" style="text-align:center; color:var(--teks-muted); padding:32px;">
-              Tidak ada log yang sesuai filter.
-            </td>
+            <td colspan="11" style="text-align:center; color:var(--teks-muted); padding:32px;">Tidak ada log yang sesuai filter.</td>
           </tr>
         @endforelse
       </tbody>
     </table>
   </div>
 
-  {{-- Pagination --}}
-  <div style="margin-top:16px;">
-    {{ $logs->withQueryString()->links() }}
-  </div>
+  <div style="margin-top:16px;">{{ $logs->withQueryString()->links() }}</div>
 </div>
 
 @endsection
