@@ -408,23 +408,19 @@ function formatTimeAgo(dateStr) {
 
 async function loadLatestLogs() {
     try {
+        const container = document.getElementById('latestLogs');
         const response = await fetch('/api/export/logs', {
             headers: { 'Accept': 'application/json' }
         });
 
         if (!response.ok) {
-            console.error('HTTP error:', response.status);
             return;
         }
 
         const data = await response.json();
 
-        if (!data.success || !data.logs) {
-            return;
-        }
-
-        if (data.logs.length === 0) {
-            document.getElementById('latestLogs').innerHTML = '<div style="padding:20px;text-align:center;color:#999;">Belum ada export</div>';
+        if (!data.success || !data.logs || data.logs.length === 0) {
+            container.innerHTML = '<div style="padding:20px;text-align:center;color:#999;">Belum ada export</div>';
             return;
         }
 
@@ -471,7 +467,7 @@ async function loadLatestLogs() {
             `;
         });
 
-        document.getElementById('latestLogs').innerHTML = html;
+        container.innerHTML = html;
 
     } catch (error) {
         console.error('Polling log gagal:', error);
