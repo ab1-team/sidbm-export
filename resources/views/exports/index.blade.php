@@ -1,14 +1,15 @@
-{{-- resources/views/exports/index.blade.php --}}
-
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Dashboard — SIDBM Export')
+@section('navbar_title', 'Dashboard')
 
 @section('content')
 
-{{-- ── Status EnStorage ── --}}
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-  <h1 style="font-size:1.25rem; font-weight:700;">Dashboard Export</h1>
+<div class="page-header">
+  <div>
+    <h1>Dashboard Export</h1>
+    <div class="page-header__sub">Ringkasan aktivitas export data SIDBM</div>
+  </div>
   <span class="ping">
     <span class="ping__dot {{ $enstoragePing ? 'ping__dot--ok' : '' }}"></span>
     EnStorage {{ $enstoragePing ? 'Terhubung' : 'Tidak Terhubung' }}
@@ -17,6 +18,10 @@
 
 {{-- ── Statistik ── --}}
 <div class="stats-grid">
+  <div class="stat-card stat--total">
+    <div class="stat-card__num">{{ $stats['total'] }}</div>
+    <div class="stat-card__label">Total Export</div>
+  </div>
   <div class="stat-card stat--success">
     <div class="stat-card__num">{{ $stats['total_success'] }}</div>
     <div class="stat-card__label">Berhasil</div>
@@ -31,38 +36,30 @@
   </div>
 </div>
 
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; align-items:start;">
+<div class="grid-2">
 
   {{-- ── Form Export ── --}}
   <div class="card">
     <h2 class="card__title">Export Data</h2>
 
-    {{-- Jenis Data --}}
     <div class="form-group">
       <label class="form-label">Jenis Data</label>
       <div class="radio-group">
         <label class="radio-option">
           <input type="radio" name="jenis" value="saldo" checked>
-          <span class="radio-option__box">
-            <span class="icon">📊</span> Saldo
-          </span>
+          <span class="radio-option__box"><span class="icon">📊</span> Saldo</span>
         </label>
         <label class="radio-option">
           <input type="radio" name="jenis" value="transaksi">
-          <span class="radio-option__box">
-            <span class="icon">📋</span> Transaksi
-          </span>
+          <span class="radio-option__box"><span class="icon">📋</span> Transaksi</span>
         </label>
         <label class="radio-option">
           <input type="radio" name="jenis" value="semua">
-          <span class="radio-option__box">
-            <span class="icon">📦</span> Keduanya
-          </span>
+          <span class="radio-option__box"><span class="icon">📦</span> Keduanya</span>
         </label>
       </div>
     </div>
 
-    {{-- Mode Export --}}
     <div class="form-group">
       <label class="form-label" for="exportMode">Mode Export</label>
       <select id="exportMode" class="form-select">
@@ -71,11 +68,10 @@
       </select>
     </div>
 
-    {{-- ── Mode Manual: pilih 1 kecamatan + 1 tahun ── --}}
     <div id="manualSection">
       <div class="form-group">
         <label class="form-label" for="kecamatanId">Kecamatan</label>
-        <select id="kecamatanId" class="form-select">
+        <select id="kecamatanId" name="kecamatan_id" class="form-select select2">
           <option value="">-- Pilih Kecamatan --</option>
           @foreach ($kecamatanList as $kec)
             <option value="{{ $kec->id }}">{{ $kec->id }} — {{ $kec->nama_kecamatan }}</option>
@@ -85,7 +81,7 @@
 
       <div class="form-group">
         <label class="form-label" for="tahun">Tahun</label>
-        <select id="tahun" class="form-select">
+      <select id="tahun" name="tahun" class="form-select select2">
           <option value="">-- Pilih Tahun --</option>
           @foreach ($tahunList as $t)
             <option value="{{ $t }}">{{ $t }}</option>
@@ -96,15 +92,28 @@
         </p>
       </div>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+      $('.select2').select2({
+          placeholder: "Pilih opsi...",
+          allowClear: true,
+          width: '100%'
+      });
+  });
+</script>
+
       <button id="btnExport" class="btn btn--primary btn--full" disabled>
         <span id="btnText">⬇ Jalankan Export</span>
         <span id="btnLoading" class="hidden">⏳ Sedang mengeksport...</span>
       </button>
     </div>
 
-    {{-- ── Mode Bulk: export semua kecamatan & tahun berurutan ── --}}
     <div id="bulkSection" class="hidden">
-      <p class="text-muted" style="font-size:.8rem; margin-bottom:8px;">
+      <p class="text-muted" style="font-size:.82rem; margin-bottom:10px;">
         Akan mengeksport semua kecamatan &amp; semua tahun secara berurutan (Kec. pertama: tahun paling lama → tahun sekarang, lalu lanjut ke kecamatan berikutnya). Proses berjalan di background — halaman ini boleh ditutup.
       </p>
       <div style="display:flex; gap:8px;">
@@ -116,26 +125,23 @@
     </div>
   </div>
 
-  {{-- ── Log Hasil ── --}}
+  {{-- ── Log ── --}}
   <div>
     <div class="card" id="cardLog" style="display:none;">
       <h2 class="card__title">Hasil Export</h2>
       <div id="logContainer"></div>
     </div>
 
-    {{-- ── Log Terbaru ── --}}
     <div class="card">
       <h2 class="card__title">
-        Log Terbaru
-        <a href="{{ route('export.logs') }}" style="font-size:.8rem; color:var(--biru-mid); float:right;">
-          Lihat semua →
-        </a>
+        <span>Log Terbaru</span>
+        <a href="{{ route('export.logs') }}">Lihat semua →</a>
       </h2>
 
       <div id="latestLogs" style="min-height:100px;">
         <p class="text-muted">Memuat...</p>
       </div>
-  </div>
+    </div>
   </div>
 </div>
 
@@ -155,15 +161,13 @@ const selTahun     = document.getElementById('tahun');
 const btnBulkExport = document.getElementById('btnBulkExport');
 const bulkProgress  = document.getElementById('bulkProgress');
 
-// Data kecamatan & tahun dikirim dari server (urutan sesuai daftar di dropdown)
 const kecamatanData = @json($kecamatanList->map(fn ($k) => ['id' => $k->id, 'nama' => $k->nama_kecamatan])->values());
-const tahunData      = @json(collect($tahunList)->sort()->values()); // urut naik: lama -> sekarang
+const tahunData      = @json(collect($tahunList)->sort()->values());
 
-let manualAbortController = null; // untuk export manual (1 kecamatan/tahun)
-let bulkRunning            = false; // true selagi proses bulk (dispatch + polling) berlangsung
-let currentBatchId = null;
+let manualAbortController = null;
+let bulkRunning            = false;
+let currentBatchId         = null;
 
-// ── Toggle tampilan berdasarkan Mode Export ──
 exportMode.addEventListener('change', () => {
   const mode = exportMode.value;
   manualSection.classList.toggle('hidden', mode !== 'manual');
@@ -174,7 +178,6 @@ function isBusy() {
   return !!manualAbortController || bulkRunning;
 }
 
-// ── Mode manual: aktifkan tombol export ──
 selKecamatan.addEventListener('change', checkForm);
 selTahun.addEventListener('change', checkForm);
 
@@ -184,7 +187,6 @@ function checkForm() {
   btnExport.disabled = !(kec && tahun) || isBusy();
 }
 
-// ── Export manual (1 kecamatan + 1 tahun) ──
 btnExport.addEventListener('click', async () => {
   if (isBusy()) return;
 
@@ -302,6 +304,9 @@ async function startBulkExport() {
     currentBatchId = data.batch_id;
     pollBatchAndLogs();
 
+    bulkRunning = false;
+    setBulkLoading(false);
+
   } catch (err) {
     addLog('error', '❌ Gagal: ' + err.message);
     bulkRunning = false;
@@ -338,14 +343,10 @@ async function pollBatchAndLogs() {
     }, 3000);
 }
 
-
 function setBulkLoading(v) {
-    btnBulkExport.disabled = v;
-    exportMode.disabled = v;
+  btnBulkExport.disabled = v;
+  exportMode.disabled = v;
 }
-
-
-// ── Util log ──
 
 function addLog(type, message, detail = '') {
     const icons = { success: '✅', error: '❌', info: 'ℹ️' };
@@ -358,34 +359,6 @@ function addLog(type, message, detail = '') {
             ${detail ? `<div class="log-item__detail">${detail}</div>` : ''}
         </div>`;
     logContainer.appendChild(div);
-}
-
-async function pollBatchStatus() {
-    const timer = setInterval(async () => {
-        try {
-            const response = await fetch(`/api/batch/${currentBatchId}`);
-            const data = await response.json();
-
-            bulkProgress.innerHTML = `
-                Total: ${data.total}<br>
-                Selesai: ${data.finished}<br>
-                Pending: ${data.pending}<br>
-                Gagal: ${data.failed}
-            `;
-
-            loadLatestLogs();
-
-            if (data.finished >= data.total) {
-                clearInterval(timer);
-                addLog('success', '🎉 Semua export selesai!');
-                bulkRunning = false;
-                setBulkLoading(false);
-                loadLatestLogs();
-            }
-        } catch (error) {
-            console.error('Polling batch gagal:', error);
-        }
-    }, 3000);
 }
 
 function formatBytes(bytes) {
@@ -486,10 +459,8 @@ function downloadLog(kecamatanId, filename) {
     window.location.href = `/api/export/files?kecamatan=${kecamatanId}&type=${type}&tahun=${tahun}&download=1`;
 }
 
-// Polling log terbaru - jalan terus
 loadLatestLogs();
 setInterval(loadLatestLogs, 5000);
-
 </script>
 
 @endsection
