@@ -97,13 +97,24 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-  $(document).ready(function() {
-      $('.select2').select2({
-          placeholder: "Pilih opsi...",
-          allowClear: true,
-          width: '100%'
-      });
-  });
+ $(document).ready(function () {
+
+    $('.select2').select2({
+        placeholder: "Pilih opsi...",
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#kecamatanId').on('change', function () {
+        checkForm();
+    });
+
+    $('#tahun').on('change', function () {
+        checkForm();
+    });
+
+    checkForm();
+});
 </script>
 
       <button id="btnExport" class="btn btn--primary btn--full" disabled>
@@ -178,13 +189,16 @@ function isBusy() {
   return !!manualAbortController || bulkRunning;
 }
 
-selKecamatan.addEventListener('change', checkForm);
-selTahun.addEventListener('change', checkForm);
+
 
 function checkForm() {
-  const kec   = selKecamatan.value;
-  const tahun = selTahun.value;
-  btnExport.disabled = !(kec && tahun) || isBusy();
+
+    const kec = $('#kecamatanId').val();
+    const tahun = $('#tahun').val();
+
+    console.log(kec, tahun);
+
+    btnExport.disabled = !(kec && tahun) || isBusy();
 }
 
 btnExport.addEventListener('click', async () => {
