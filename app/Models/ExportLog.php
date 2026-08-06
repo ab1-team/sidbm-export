@@ -4,6 +4,7 @@
 
 namespace App\Models;
 
+use App\Models\Sidbm\Kecamatan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -47,6 +48,11 @@ class ExportLog extends Model
     public function scopeForKecamatan(Builder $query, int $kecamatanId): Builder
     {
         return $query->where('kecamatan_id', $kecamatanId);
+    }
+
+    public function kecamatan()
+    {
+        return $this->belongsTo(Kecamatan::class, 'kecamatan_id', 'id');
     }
 
     // ── Accessors ───────────────────────────────────────────

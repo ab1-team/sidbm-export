@@ -33,23 +33,56 @@ class ExportController extends Controller
         $tahunList   = range(2018, $batasArsip - 1);
         $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
 
-        // Ringkasan log terbaru
-        $recentLogs = ExportLog::with([])
-            ->latest()
-            ->limit(20)
-            ->get();
+        // Statistik untuk dashboard
+        $totalKecamatan = $kecamatanList->count();
 
-        // Statistik
-        $stats = [
-            'total_success' => ExportLog::where('status', 'success')->count(),
-            'total_failed'  => ExportLog::where('status', 'failed')->count(),
-            'total_pending' => ExportLog::where('status', 'pending')->count(),
-        ];
+        // Count total saldo across all kecamatan
+        $totalSaldo = 0;
+        foreach ($kecamatanList as $kec) {
+            try {
+                $saldo = new \App\Models\Sidbm\SaldoModel($kec->id);
+                $totalSaldo += $saldo->count();
+            } catch (\Exception $e) {
+                // Skip if table doesn't exist
+            }
+        }
+
+        // Count total transaksi across all kecamatan
+        $totalTransaksi = 0;
+        foreach ($kecamatanList as $kec) {
+            try {
+                $transaksi = new \App\Models\Sidbm\TransaksiModel($kec->id);
+                $totalTransaksi += $transaksi->count();
+            } catch (\Exception $e) {
+                // Skip if table doesn't exist
+            }
+        }
+
+        // Last export
+        $lastExport = ExportLog::where('status', 'success')->latest('created_at')->first();
 
         $enstoragePing = $this->enstorage->ping();
 
         return view('exports.index', compact(
-            'tahunList', 'kecamatanList', 'recentLogs', 'stats', 'enstoragePing', 'batasArsip'
+            'tahunList', 'kecamatanList', 'totalKecamatan', 'totalSaldo', 'totalTransaksi', 'lastExport', 'enstoragePing', 'batasArsip'
+        ));
+    }
+
+    /**
+     * Halaman Export Data
+     */
+    public function export()
+    {
+        $batasArsip  = (int) config('app.arsip_batas_tahun', now()->year - 2);
+        $tahunList   = range(2018, $batasArsip - 1);
+        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
+        $totalKecamatan = $kecamatanList->count();
+        $enstoragePing = $this->enstorage->ping();
+
+        $recentLogs = collect();
+
+        return view('exports.export-data', compact(
+            'tahunList', 'kecamatanList', 'totalKecamatan', 'enstoragePing', 'batasArsip', 'recentLogs'
         ));
     }
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ExportController as ApiExportController;
 use App\Http\Controllers\Api\BatchController;
 use App\Http\Controllers\Api\LogController;
 
+<<<<<<< HEAD
 
 Route::middleware('auth')->group(function () {
 
@@ -47,3 +48,9 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+=======
+Route::get('/',            [ExportController::class, 'index'])->name('export.index');
+Route::get('/export',      [ExportController::class, 'export'])->name('export.data');
+Route::post('/run',        [ExportController::class, 'run'])->name('export.run');
+Route::get('/logs',        [ExportController::class, 'logs'])->name('export.logs');
+>>>>>>> origin/ui/halaman-login
