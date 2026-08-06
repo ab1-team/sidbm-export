@@ -1,13 +1,13 @@
-{{-- resources/views/exports/index.blade.php --}}
-
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Dashboard — SIDBM Export')
+@section('navbar_title', 'Dashboard')
 
 @section('page-title', 'Dashboard')
 
 @section('content')
 
+<<<<<<< HEAD
 {{-- ── Welcome Banner ── --}}
 <div class="welcome-banner">
   <div class="welcome-banner__content">
@@ -25,11 +25,64 @@
       <div class="welcome-banner__stat">
         <div class="welcome-banner__stat-num">{{ $lastExport ? $lastExport->created_at->format('d M') : '-' }}</div>
         <div class="welcome-banner__stat-label">Export Terakhir</div>
+=======
+<div class="page-header">
+  <div>
+    <h1>Dashboard Export</h1>
+    <div class="page-header__sub">Ringkasan aktivitas export data SIDBM</div>
+  </div>
+  <span class="ping">
+    <span class="ping__dot {{ $enstoragePing ? 'ping__dot--ok' : '' }}"></span>
+    EnStorage {{ $enstoragePing ? 'Terhubung' : 'Tidak Terhubung' }}
+  </span>
+</div>
+
+{{-- ── Statistik ── --}}
+<div class="stats-grid">
+  <div class="stat-card stat--total">
+    <div class="stat-card__num">{{ $stats['total'] }}</div>
+    <div class="stat-card__label">Total Export</div>
+  </div>
+  <div class="stat-card stat--success">
+    <div class="stat-card__num">{{ $stats['total_success'] }}</div>
+    <div class="stat-card__label">Berhasil</div>
+  </div>
+  <div class="stat-card stat--failed">
+    <div class="stat-card__num">{{ $stats['total_failed'] }}</div>
+    <div class="stat-card__label">Gagal</div>
+  </div>
+  <div class="stat-card stat--pending">
+    <div class="stat-card__num">{{ $stats['total_pending'] }}</div>
+    <div class="stat-card__label">Pending</div>
+  </div>
+</div>
+
+<div class="grid-2">
+
+  {{-- ── Form Export ── --}}
+  <div class="card">
+    <h2 class="card__title">Export Data</h2>
+
+    <div class="form-group">
+      <label class="form-label">Jenis Data</label>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="jenis" value="saldo" checked>
+          <span class="radio-option__box"><span class="icon">📊</span> Saldo</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="jenis" value="transaksi">
+          <span class="radio-option__box"><span class="icon">📋</span> Transaksi</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="jenis" value="semua">
+          <span class="radio-option__box"><span class="icon">📦</span> Keduanya</span>
+        </label>
+>>>>>>> 45ceb9df3b606b959ebdb99b211a606eae9cd357
       </div>
     </div>
 <<<<<<< HEAD
 
-    {{-- Mode Export --}}
     <div class="form-group">
       <label class="form-label" for="exportMode">Mode Export</label>
       <select id="exportMode" class="form-select">
@@ -38,11 +91,10 @@
       </select>
     </div>
 
-    {{-- ── Mode Manual: pilih 1 kecamatan + 1 tahun ── --}}
     <div id="manualSection">
       <div class="form-group">
         <label class="form-label" for="kecamatanId">Kecamatan</label>
-        <select id="kecamatanId" class="form-select">
+        <select id="kecamatanId" name="kecamatan_id" class="form-select select2">
           <option value="">-- Pilih Kecamatan --</option>
           @foreach ($kecamatanList as $kec)
             <option value="{{ $kec->id }}">{{ $kec->id }} — {{ $kec->nama_kecamatan }}</option>
@@ -52,7 +104,7 @@
 
       <div class="form-group">
         <label class="form-label" for="tahun">Tahun</label>
-        <select id="tahun" class="form-select">
+      <select id="tahun" name="tahun" class="form-select select2">
           <option value="">-- Pilih Tahun --</option>
           @foreach ($tahunList as $t)
             <option value="{{ $t }}">{{ $t }}</option>
@@ -63,15 +115,39 @@
         </p>
       </div>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+ $(document).ready(function () {
+
+    $('.select2').select2({
+        placeholder: "Pilih opsi...",
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#kecamatanId').on('change', function () {
+        checkForm();
+    });
+
+    $('#tahun').on('change', function () {
+        checkForm();
+    });
+
+    checkForm();
+});
+</script>
+
       <button id="btnExport" class="btn btn--primary btn--full" disabled>
         <span id="btnText">⬇ Jalankan Export</span>
         <span id="btnLoading" class="hidden">⏳ Sedang mengeksport...</span>
       </button>
     </div>
 
-    {{-- ── Mode Bulk: export semua kecamatan & tahun berurutan ── --}}
     <div id="bulkSection" class="hidden">
-      <p class="text-muted" style="font-size:.8rem; margin-bottom:8px;">
+      <p class="text-muted" style="font-size:.82rem; margin-bottom:10px;">
         Akan mengeksport semua kecamatan &amp; semua tahun secara berurutan (Kec. pertama: tahun paling lama → tahun sekarang, lalu lanjut ke kecamatan berikutnya). Proses berjalan di background — halaman ini boleh ditutup.
       </p>
       <div style="display:flex; gap:8px;">
@@ -83,52 +159,23 @@
     </div>
   </div>
 
-  {{-- ── Log Hasil ── --}}
+  {{-- ── Log ── --}}
   <div>
     <div class="card" id="cardLog" style="display:none;">
       <h2 class="card__title">Hasil Export</h2>
       <div id="logContainer"></div>
     </div>
 
-    {{-- ── Log Terbaru ── --}}
     <div class="card">
       <h2 class="card__title">
-        Log Terbaru
-        <a href="{{ route('export.logs') }}" style="font-size:.8rem; color:var(--biru-mid); float:right;">
-          Lihat semua →
-        </a>
+        <span>Log Terbaru</span>
+        <a href="{{ route('export.logs') }}">Lihat semua →</a>
       </h2>
 
-      <div id="latestLogs">
-
-      @forelse ($recentLogs as $log)
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border);">
-          <div>
-            <div style="font-size:.875rem; font-weight:500;">
-              Kec. {{ $log->kecamatan_id }} — {{ ucfirst($log->jenis) }} {{ $log->tahun }}
-              @if ($log->bulan)
-                / {{ $log->bulan_label }}
-              @endif
-            </div>
-            <div class="text-muted" style="font-size:.78rem;">
-              {{ $log->filename }} • {{ $log->file_size_human }}
-              @if($log->record_count)
-                • {{ number_format($log->record_count) }} records
-              @endif
-            </div>
-          </div>
-          <div style="text-align:right; flex-shrink:0; margin-left:12px;">
-            <span class="badge badge--{{ $log->status }}">{{ $log->status }}</span>
-            <div class="text-muted" style="font-size:.75rem; margin-top:2px;">
-              {{ $log->created_at?->diffForHumans() }}
-            </div>
-          </div>
-        </div>
-      @empty
-        <p class="text-muted">Belum ada log export.</p>
-      @endforelse
+      <div id="latestLogs" style="min-height:100px;">
+        <p class="text-muted">Memuat...</p>
+      </div>
     </div>
-  </div>
   </div>
 </div>
 
@@ -148,15 +195,13 @@ const selTahun     = document.getElementById('tahun');
 const btnBulkExport = document.getElementById('btnBulkExport');
 const bulkProgress  = document.getElementById('bulkProgress');
 
-// Data kecamatan & tahun dikirim dari server (urutan sesuai daftar di dropdown)
 const kecamatanData = @json($kecamatanList->map(fn ($k) => ['id' => $k->id, 'nama' => $k->nama_kecamatan])->values());
-const tahunData      = @json(collect($tahunList)->sort()->values()); // urut naik: lama -> sekarang
+const tahunData      = @json(collect($tahunList)->sort()->values());
 
-let manualAbortController = null; // untuk export manual (1 kecamatan/tahun)
-let bulkRunning            = false; // true selagi proses bulk (dispatch + polling) berlangsung
-let currentBatchId = null;
+let manualAbortController = null;
+let bulkRunning            = false;
+let currentBatchId         = null;
 
-// ── Toggle tampilan berdasarkan Mode Export ──
 exportMode.addEventListener('change', () => {
   const mode = exportMode.value;
   manualSection.classList.toggle('hidden', mode !== 'manual');
@@ -167,17 +212,18 @@ function isBusy() {
   return !!manualAbortController || bulkRunning;
 }
 
-// ── Mode manual: aktifkan tombol export ──
-selKecamatan.addEventListener('change', checkForm);
-selTahun.addEventListener('change', checkForm);
+
 
 function checkForm() {
-  const kec   = selKecamatan.value;
-  const tahun = selTahun.value;
-  btnExport.disabled = !(kec && tahun) || isBusy();
+
+    const kec = $('#kecamatanId').val();
+    const tahun = $('#tahun').val();
+
+    console.log(kec, tahun);
+
+    btnExport.disabled = !(kec && tahun) || isBusy();
 }
 
-// ── Export manual (1 kecamatan + 1 tahun) ──
 btnExport.addEventListener('click', async () => {
   if (isBusy()) return;
 
@@ -216,9 +262,9 @@ switch (jenis) {
         'Accept'          : 'application/json',
       },
       body: JSON.stringify({
-    kecamatan_id: kecamatanId,
-    tahun: tahun
-}),
+        kecamatan_id: kecamatanId,
+        tahun: tahun
+      }),
       signal: manualAbortController.signal,
     });
 =======
@@ -442,10 +488,10 @@ switch (jenis) {
     }
     if (data.results?.transaksi) {
       const t = data.results.transaksi;
-      addLog('info', `Transaksi: ${t.success} bulan berhasil, ${t.failed} bulan dilewati`);
+      addLog(t.success > 0 ? 'success' : 'error', `Transaksi: ${t.success} berhasil, ${t.failed} gagal`);
     }
 
-    //setTimeout(() => location.reload(), 2000);
+    loadLatestLogs();
 
   } catch (err) {
     if (err.name !== 'AbortError') {
@@ -473,7 +519,7 @@ async function startBulkExport() {
   const jenis = document.querySelector('input[name="jenis"]:checked').value;
   cardLog.style.display = 'block';
   logContainer.innerHTML = '';
-  addLog('info', `🚀 Mengirim ${kecamatanData.length} kecamatan × ${tahunData.length} tahun ke antrean background...`);
+  addLog('info', `🚀 Memulai export semua...`);
 
   setBulkLoading(true);
 
@@ -491,49 +537,31 @@ async function startBulkExport() {
     const data = await response.json();
 
     if (!data.success) {
-  addLog('error', '❌ ' + data.message);
-  bulkRunning = false;
-  setBulkLoading(false);
-  return;
-}
+        addLog('error', '❌ ' + data.message);
+        bulkRunning = false;
+        setBulkLoading(false);
+        return;
+    }
 
-currentBatchId = data.batch_id;
+    addLog('success', `✅ Export dimulai (${data.total_jobs} job dalam antrean)`);
+    currentBatchId = data.batch_id;
+    pollBatchAndLogs();
 
-addLog(
-    'success',
-    `✅ Bulk export dimulai. Batch ID: ${currentBatchId}`
-);
-
-pollBatchStatus();
+    bulkRunning = false;
+    setBulkLoading(false);
 
   } catch (err) {
-    addLog('error', '❌ Gagal memulai: ' + err.message);
+    addLog('error', '❌ Gagal: ' + err.message);
     bulkRunning = false;
     setBulkLoading(false);
   }
 }
 
-
-function setBulkLoading(v) {
-    btnBulkExport.disabled = v;
-    exportMode.disabled = v;
-}
-
-
-// ── Util log ──
-
-async function pollBatchStatus(){
-
-    const timer = setInterval(async()=>{
-
+async function pollBatchAndLogs() {
+    const timer = setInterval(async () => {
         try {
-
-          const response = await fetch(
-    `/api/batch/${currentBatchId}`
-);
-
+            const response = await fetch(`/api/batch/${currentBatchId}`);
             const data = await response.json();
-
 
             bulkProgress.innerHTML = `
                 Total: ${data.total}<br>
@@ -542,103 +570,140 @@ async function pollBatchStatus(){
                 Gagal: ${data.failed}
             `;
 
+            loadLatestLogs();
 
-            if(data.finished){
-
+            if (data.finished >= data.total) {
                 clearInterval(timer);
-
+                addLog('success', '🎉 Semua export selesai!');
                 bulkRunning = false;
                 setBulkLoading(false);
-
-                addLog(
-                    'success',
-                    '🎉 Semua export selesai'
-                );
-
                 loadLatestLogs();
             }
 
-
-        } catch(error){
-
-            console.error(
-                'Polling batch gagal:',
-                error
-            );
-
+        } catch (error) {
+            console.error('Polling gagal:', error);
         }
-
-
-    },5000);
-
+    }, 3000);
 }
 
+function setBulkLoading(v) {
+  btnBulkExport.disabled = v;
+  exportMode.disabled = v;
+}
 
 function addLog(type, message, detail = '') {
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-  const div   = document.createElement('div');
-  div.className = `log-item log-item--${type}`;
-  div.innerHTML = `
-    <span>${icons[type]}</span>
-    <div>
-      <div>${message}</div>
-      ${detail ? `<div class="log-item__detail">${detail}</div>` : ''}
-    </div>`;
-  logContainer.appendChild(div);
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    const div = document.createElement('div');
+    div.className = `log-item log-item--${type}`;
+    div.innerHTML = `
+        <span>${icons[type]}</span>
+        <div>
+            <div>${message}</div>
+            ${detail ? `<div class="log-item__detail">${detail}</div>` : ''}
+        </div>`;
+    logContainer.appendChild(div);
+}
+
+function formatBytes(bytes) {
+    if (!bytes) return '-';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+    return (bytes / 1048576).toFixed(2) + ' MB';
+}
+
+function formatTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    if (diff < 60) return diff + ' detik lalu';
+    if (diff < 3600) return Math.floor(diff / 60) + ' menit lalu';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' jam lalu';
+    return Math.floor(diff / 86400) + ' hari lalu';
 }
 
 async function loadLatestLogs() {
     try {
         const response = await fetch('/api/export/logs', {
-            headers: {
-                'Accept': 'application/json'
-            }
+            headers: { 'Accept': 'application/json' }
         });
+
+        if (!response.ok) {
+            console.error('HTTP error:', response.status);
+            return;
+        }
 
         const data = await response.json();
 
-        if (!data.success) return;
+        if (!data.success || !data.logs) {
+            return;
+        }
+
+        if (data.logs.length === 0) {
+            document.getElementById('latestLogs').innerHTML = '<div style="padding:20px;text-align:center;color:#999;">Belum ada export</div>';
+            return;
+        }
 
         let html = '';
-
         data.logs.forEach(log => {
+            const isSuccess = log.status === 'success';
+            const isFailed = log.status === 'failed';
+            const fileSize = formatBytes(log.file_size);
+            const timeAgo = formatTimeAgo(log.created_at);
+            const badgeColor = isSuccess ? 'background:#d4edda;color:#155724;' : (isFailed ? 'background:#f8d7da;color:#721c24;' : 'background:#fff3cd;color:#856404;');
+            const parts = (log.filename || '').split('_');
+            const type = parts[0] || '';
+            const tahun = (parts[1] || '').replace('.json', '');
+            const openBtn = isSuccess && log.filename
+                ? `<button onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#e3f2fd;">Buka</button>`
+                : '';
+            const downloadBtn = isSuccess && log.filename
+                ? `<button onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#f8f9fa;">Download</button>`
+                : '';
 
             html += `
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 5px;border-bottom:1px solid #eee;">
                     <div>
-                        <div style="font-size:.875rem;font-weight:500;">
+                        <div style="font-size:.9rem;font-weight:500;">
                             Kec. ${log.kecamatan_id} — ${log.jenis} ${log.tahun}
                             ${log.bulan ? '/ ' + log.bulan : ''}
                         </div>
-
-                        <div class="text-muted" style="font-size:.78rem;">
-                            ${log.filename}
+                        <div style="font-size:.75rem;color:#666;">
+                            ${log.filename || '-'}
+                            ${log.file_size ? ' • ' + fileSize : ''}
+                            ${log.record_count ? ' • ' + log.record_count.toLocaleString() + ' records' : ''}
                         </div>
+                        ${log.error_message ? `<div style="font-size:.7rem;color:red;margin-top:2px;">Error: ${log.error_message}</div>` : ''}
                     </div>
-
-                    <div style="text-align:right;">
-                        <span class="badge badge--${log.status}">
-                            ${log.status}
-                        </span>
+                    <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+                        <span class="badge" style="${badgeColor}padding:3px 8px;border-radius:3px;font-size:.75rem;">${log.status}</span>
+                        <div style="margin-top:4px;">
+                            ${openBtn}
+                            ${downloadBtn}
+                        </div>
+                        <div style="font-size:.65rem;color:#999;margin-top:3px;">${timeAgo}</div>
                     </div>
                 </div>
             `;
         });
 
         document.getElementById('latestLogs').innerHTML = html;
-        console.log('LOG UPDATED:', data.logs[0]);
 
     } catch (error) {
         console.error('Polling log gagal:', error);
     }
 }
 
-// pertama kali dijalankan
+function downloadLog(kecamatanId, filename) {
+    if (!filename || !kecamatanId) return;
+    const parts = filename.split('_');
+    const type = parts[0];
+    const tahun = parts[1].replace('.json', '');
+    window.location.href = `/api/export/files?kecamatan=${kecamatanId}&type=${type}&tahun=${tahun}&download=1`;
+}
+
 loadLatestLogs();
-
-// ulangi setiap 5 detik
 setInterval(loadLatestLogs, 5000);
-
 </script>
 =======
           <a href="{{ route('export.logs') }}" class="btn btn--outline" style="width: 100%; justify-content: center;">

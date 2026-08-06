@@ -33,6 +33,7 @@ class ExportController extends Controller
         $tahunList   = range(2018, $batasArsip - 1);
         $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
 
+<<<<<<< HEAD
         // Statistik untuk dashboard
         $totalKecamatan = $kecamatanList->count();
 
@@ -60,10 +61,20 @@ class ExportController extends Controller
 
         // Last export
         $lastExport = ExportLog::where('status', 'success')->latest('created_at')->first();
+=======
+        // Statistik
+        $stats = [
+            'total'         => ExportLog::count(),
+            'total_success' => ExportLog::where('status', 'success')->count(),
+            'total_failed'  => ExportLog::where('status', 'failed')->count(),
+            'total_pending' => ExportLog::where('status', 'pending')->count(),
+        ];
+>>>>>>> 45ceb9df3b606b959ebdb99b211a606eae9cd357
 
         $enstoragePing = $this->enstorage->ping();
 
         return view('exports.index', compact(
+<<<<<<< HEAD
             'tahunList', 'kecamatanList', 'totalKecamatan', 'totalSaldo', 'totalTransaksi', 'lastExport', 'enstoragePing', 'batasArsip'
         ));
     }
@@ -83,6 +94,9 @@ class ExportController extends Controller
 
         return view('exports.export-data', compact(
             'tahunList', 'kecamatanList', 'totalKecamatan', 'enstoragePing', 'batasArsip', 'recentLogs'
+=======
+            'tahunList', 'kecamatanList', 'stats', 'enstoragePing', 'batasArsip'
+>>>>>>> 45ceb9df3b606b959ebdb99b211a606eae9cd357
         ));
     }
 
@@ -295,7 +309,7 @@ private function ensureQueueWorkerRunning(): void
     $artisan = base_path('artisan');
 
     $command = sprintf(
-        'start "Laravel Queue Worker" cmd /k "%s %s queue:work database --queue=export --tries=1 --timeout=900"',
+        'start "Laravel Queue Worker" cmd /k "%s %s queue:work database --queue=export --tries=1 --timeout=900 --stop-when-empty"',
         $php,
         $artisan
     );
