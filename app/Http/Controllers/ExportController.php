@@ -25,15 +25,10 @@ class ExportController extends Controller
     ) {}
 
     /**
-     * Halaman utama — dashboard export
+     * Halaman Dashboard — hanya statistik
      */
-    public function index()
+    public function dashboard()
     {
-        $batasArsip  = (int) config('app.arsip_batas_tahun', now()->year - 2);
-        $tahunList   = range(2018, $batasArsip - 1);
-        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
-
-        // Statistik
         $stats = [
             'total'         => ExportLog::count(),
             'total_success' => ExportLog::where('status', 'success')->count(),
@@ -43,9 +38,38 @@ class ExportController extends Controller
 
         $enstoragePing = $this->enstorage->ping();
 
-        return view('exports.index', compact(
+        return view('dashboard', compact('stats', 'enstoragePing'));
+    }
+
+    /**
+     * Halaman Export Data — form export dan log terbaru
+     */
+    public function exportData()
+    {
+        $batasArsip  = (int) config('app.arsip_batas_tahun', now()->year - 2);
+        $tahunList   = range(2018, $batasArsip - 1);
+        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
+
+        $stats = [
+            'total'         => ExportLog::count(),
+            'total_success' => ExportLog::where('status', 'success')->count(),
+            'total_failed'  => ExportLog::where('status', 'failed')->count(),
+            'total_pending' => ExportLog::where('status', 'pending')->count(),
+        ];
+
+        $enstoragePing = $this->enstorage->ping();
+
+        return view('exports.export-data', compact(
             'tahunList', 'kecamatanList', 'stats', 'enstoragePing', 'batasArsip'
         ));
+    }
+
+    /**
+     * Halaman utama lama — redirect ke dashboard
+     */
+    public function index()
+    {
+        return redirect()->route('dashboard');
     }
 
         public function latestLogs()
