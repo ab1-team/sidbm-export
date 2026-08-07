@@ -3,22 +3,13 @@
 @section('title', 'Log Export — SIDBM Export')
 @section('navbar_title', 'Log Export')
 
-@section('page-title', 'Log Export')
-
 @section('content')
 
-<<<<<<< HEAD
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-  <a href="{{ route('export.index') }}" class="btn btn--primary" style="width:auto;">
-    ← Dashboard
-  </a>
-=======
 <div class="page-header">
   <div>
     <h1>Log Export</h1>
     <div class="page-header__sub">Riwayat aktivitas export data</div>
   </div>
->>>>>>> 45ceb9df3b606b959ebdb99b211a606eae9cd357
 </div>
 
 <div class="card">
@@ -60,35 +51,23 @@
 </div>
 
 <div class="card">
-  <div class="table-wrap" style="padding: 0 8px;">
+  <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Tanggal</th>
-          <th>Jenis</th>
           <th>Kecamatan</th>
+          <th>Jenis</th>
           <th>Tahun</th>
+          <th>Bulan</th>
           <th>File</th>
-<<<<<<< HEAD
-=======
           <th>Record</th>
           <th>Ukuran</th>
->>>>>>> 45ceb9df3b606b959ebdb99b211a606eae9cd357
           <th>Status</th>
-          <th>Aksi</th>
+          <th>Waktu</th>
+          <th>Oleh</th>
         </tr>
       </thead>
       <tbody>
-<<<<<<< HEAD
-        <tr>
-          <td colspan="7" style="text-align:center; color:var(--teks-muted); padding:32px;">
-            Tidak ada log export
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-=======
         @forelse ($logs as $log)
           <tr>
             <td>{{ $log->kecamatan_id }}</td>
@@ -125,7 +104,6 @@
   </div>
 
   <div style="margin-top:16px;">{{ $logs->withQueryString()->links() }}</div>
->>>>>>> 45ceb9df3b606b959ebdb99b211a606eae9cd357
 </div>
 
 @endsection

@@ -495,13 +495,23 @@
 
       <div class="sidebar__group-label">Menu Utama</div>
       <nav class="sidebar__nav">
-        <a href="{{ route('export.index') }}"
-           class="sidebar__link {{ request()->routeIs('export.index') ? 'active' : '' }}">
+        <a href="{{ route('dashboard') }}"
+           class="sidebar__link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 12 12 3l9 9"/>
             <path d="M5 10v10h14V10"/>
           </svg>
           <span>Dashboard</span>
+        </a>
+
+        <a href="{{ route('export-data') }}"
+           class="sidebar__link {{ request()->routeIs('export-data') ? 'active' : '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Export Data</span>
         </a>
 
         <a href="{{ route('export.logs') }}"
