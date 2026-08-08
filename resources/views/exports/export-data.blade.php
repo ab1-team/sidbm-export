@@ -74,6 +74,20 @@
       <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+      <style>
+        .select2-container .select2-selection--single {
+          border-radius: 999px !important;
+          height: 38px;
+        }
+        .select2-container .select2-selection__rendered {
+          line-height: 36px !important;
+          padding-left: 14px !important;
+        }
+        .select2-container .select2-selection__arrow {
+          height: 36px !important;
+          right: 12px !important;
+        }
+      </style>
 
       <script>
        $(document).ready(function () {
@@ -400,10 +414,10 @@ async function loadLatestLogs() {
             const type = parts[0] || '';
             const tahun = (parts[1] || '').replace('.json', '');
             const openBtn = isSuccess && log.filename
-                ? `<button onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#e3f2fd;">Buka</button>`
+                ? `<button onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:999px;background:#e3f2fd;">Buka</button>`
                 : '';
             const downloadBtn = isSuccess && log.filename
-                ? `<button onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#f8f9fa;">Download</button>`
+                ? `<button onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:999px;background:#f8f9fa;">Download</button>`
                 : '';
 
             html += `

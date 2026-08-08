@@ -299,7 +299,7 @@
     .form-label  { display: block; font-size: .85rem; font-weight: 500; margin-bottom: 6px; color: var(--teks); }
     .form-select, .form-input {
       width: 100%; padding: 10px 12px;
-      border: 1px solid var(--border); border-radius: 8px;
+      border: 1px solid var(--border); border-radius: 999px;
       font-size: .9rem; font-family: inherit;
       outline: none; background: white; color: var(--teks);
       transition: border-color .2s ease, box-shadow .2s ease;
@@ -330,7 +330,7 @@
     /* ── Buttons ── */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 10px 20px; border: none; border-radius: 8px;
+      padding: 10px 20px; border: none; border-radius: 999px;
       font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .2s ease;
       font-family: inherit;
     }
