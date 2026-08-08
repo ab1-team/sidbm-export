@@ -38,7 +38,14 @@ class ExportController extends Controller
 
         $enstoragePing = $this->enstorage->ping();
 
-        return view('dashboard', compact('stats', 'enstoragePing'));
+        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $monthlyData = collect(range(1, 12))->map(function ($month) {
+            return ExportLog::whereMonth('created_at', $month)
+                ->whereYear('created_at', now()->year)
+                ->count();
+        })->toArray();
+
+        return view('dashboard', compact('stats', 'enstoragePing', 'months', 'monthlyData'));
     }
 
     /**
