@@ -33,7 +33,9 @@ Route::middleware('auth')->group(function () {
 
 });
 
-    Route::get('/',        [ExportController::class, 'index'])->name('export.index');
+    Route::get('/', [ExportController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/export-data', [ExportController::class, 'exportData'])->name('export-data');
 
 
     Route::post('/run',    [ExportController::class, 'run'])->name('export.run');

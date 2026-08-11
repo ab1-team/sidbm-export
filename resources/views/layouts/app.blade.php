@@ -169,12 +169,15 @@
 <body>
 
   <nav class="navbar">
-    <a href="{{ route('export.index') }}" class="navbar__brand">
+    <a href="{{ route('dashboard') }}" class="navbar__brand">
       📦 SIDBM <span>Export</span>
     </a>
     <div class="navbar__nav">
-      <a href="{{ route('export.index') }}" class="navbar__link {{ request()->routeIs('export.index') ? 'active' : '' }}">
+      <a href="{{ route('dashboard') }}" class="navbar__link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
         Dashboard
+      </a>
+      <a href="{{ route('export-data') }}" class="navbar__link {{ request()->routeIs('export-data') ? 'active' : '' }}">
+        Export Data
       </a>
       <a href="{{ route('export.logs') }}" class="navbar__link {{ request()->routeIs('export.logs') ? 'active' : '' }}">
         Log Export

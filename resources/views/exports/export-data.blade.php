@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard — SIDBM Export')
-@section('navbar_title', 'Dashboard')
+@section('title', 'Export Data — SIDBM Export')
+@section('navbar_title', 'Export Data')
 
 @section('content')
 
 <div class="page-header">
   <div>
-    <h1>Dashboard Export</h1>
-    <div class="page-header__sub">Ringkasan aktivitas export data SIDBM</div>
+    <h1>Export Data</h1>
+    <div class="page-header__sub">Eksport data saldo dan transaksi SIDBM ke EnStorage</div>
   </div>
   <span class="ping">
     <span class="ping__dot {{ $enstoragePing ? 'ping__dot--ok' : '' }}"></span>
@@ -16,31 +16,10 @@
   </span>
 </div>
 
-{{-- ── Statistik ── --}}
-<div class="stats-grid">
-  <div class="stat-card stat--total">
-    <div class="stat-card__num">{{ $stats['total'] }}</div>
-    <div class="stat-card__label">Total Export</div>
-  </div>
-  <div class="stat-card stat--success">
-    <div class="stat-card__num">{{ $stats['total_success'] }}</div>
-    <div class="stat-card__label">Berhasil</div>
-  </div>
-  <div class="stat-card stat--failed">
-    <div class="stat-card__num">{{ $stats['total_failed'] }}</div>
-    <div class="stat-card__label">Gagal</div>
-  </div>
-  <div class="stat-card stat--pending">
-    <div class="stat-card__num">{{ $stats['total_pending'] }}</div>
-    <div class="stat-card__label">Pending</div>
-  </div>
-</div>
-
 <div class="grid-2">
 
-  {{-- ── Form Export ── --}}
   <div class="card">
-    <h2 class="card__title">Export Data</h2>
+    <h2 class="card__title">Form Export</h2>
 
     <div class="form-group">
       <label class="form-label">Jenis Data</label>
@@ -63,8 +42,8 @@
     <div class="form-group">
       <label class="form-label" for="exportMode">Mode Export</label>
       <select id="exportMode" class="form-select">
-        <option value="manual"> pilih Kecamatan &amp; Tahun</option>
-        <option value="bulk">Semua otomatis — semua Kecamatan &amp; Tahun</option>
+        <option value="manual">Pilih Kecamatan &amp; Tahun</option>
+        <option value="bulk">Semua Otomatis — Semua Kecamatan &amp; Tahun</option>
       </select>
     </div>
 
@@ -74,14 +53,14 @@
         <select id="kecamatanId" name="kecamatan_id" class="form-select select2">
           <option value="">-- Pilih Kecamatan --</option>
           @foreach ($kecamatanList as $kec)
-            <option value="{{ $kec->id }}">{{ $kec->id }} — {{ $kec->nama_kecamatan }}</option>
+            <option value="{{ $kec->id }}">{{ $kec->id }} — {{ $kec->nama_kec }}</option>
           @endforeach
         </select>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="tahun">Tahun</label>
-      <select id="tahun" name="tahun" class="form-select select2">
+        <select id="tahun" name="tahun" class="form-select select2">
           <option value="">-- Pilih Tahun --</option>
           @foreach ($tahunList as $t)
             <option value="{{ $t }}">{{ $t }}</option>
@@ -92,30 +71,44 @@
         </p>
       </div>
 
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+      <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+      <style>
+        .select2-container .select2-selection--single {
+          border-radius: 999px !important;
+          height: 38px;
+        }
+        .select2-container .select2-selection__rendered {
+          line-height: 36px !important;
+          padding-left: 14px !important;
+        }
+        .select2-container .select2-selection__arrow {
+          height: 36px !important;
+          right: 12px !important;
+        }
+      </style>
 
-<script>
- $(document).ready(function () {
+      <script>
+       $(document).ready(function () {
 
-    $('.select2').select2({
-        placeholder: "Pilih opsi...",
-        allowClear: true,
-        width: '100%'
-    });
+          $('.select2').select2({
+              placeholder: "Pilih opsi...",
+              allowClear: true,
+              width: '100%'
+          });
 
-    $('#kecamatanId').on('change', function () {
-        checkForm();
-    });
+          $('#kecamatanId').on('change', function () {
+              checkForm();
+          });
 
-    $('#tahun').on('change', function () {
-        checkForm();
-    });
+          $('#tahun').on('change', function () {
+              checkForm();
+          });
 
-    checkForm();
-});
-</script>
+          checkForm();
+      });
+      </script>
 
       <button id="btnExport" class="btn btn--primary btn--full" disabled>
         <span id="btnText">⬇ Jalankan Export</span>
@@ -136,7 +129,6 @@
     </div>
   </div>
 
-  {{-- ── Log ── --}}
   <div>
     <div class="card" id="cardLog" style="display:none;">
       <h2 class="card__title">Hasil Export</h2>
@@ -149,7 +141,7 @@
         <a href="{{ route('export.logs') }}">Lihat semua →</a>
       </h2>
 
-      <div id="latestLogs" style="min-height:100px;">
+      <div id="latestLogs" style="max-height:320px; overflow-y:auto;">
         <p class="text-muted">Memuat...</p>
       </div>
     </div>
@@ -189,15 +181,9 @@ function isBusy() {
   return !!manualAbortController || bulkRunning;
 }
 
-
-
 function checkForm() {
-
     const kec = $('#kecamatanId').val();
     const tahun = $('#tahun').val();
-
-    console.log(kec, tahun);
-
     btnExport.disabled = !(kec && tahun) || isBusy();
 }
 
@@ -208,21 +194,21 @@ btnExport.addEventListener('click', async () => {
   const tahun       = selTahun.value;
   const jenis       = document.querySelector('input[name="jenis"]:checked').value;
 
-let url = '';
+  let url = '';
 
-switch (jenis) {
-    case 'saldo':
-        url = '/api/export/saldo';
-        break;
+  switch (jenis) {
+      case 'saldo':
+          url = '/api/export/saldo';
+          break;
 
-    case 'transaksi':
-        url = '/api/export/transaksi';
-        break;
+      case 'transaksi':
+          url = '/api/export/transaksi';
+          break;
 
-    case 'semua':
-        url = '/api/export/semua';
-        break;
-}
+      case 'semua':
+          url = '/api/export/semua';
+          break;
+  }
 
   manualAbortController = new AbortController();
   setManualLoading(true);
@@ -410,13 +396,15 @@ async function loadLatestLogs() {
             return;
         }
 
-        if (data.logs.length === 0) {
+        const latestLogs = data.logs.slice(0, 5);
+
+        if (latestLogs.length === 0) {
             document.getElementById('latestLogs').innerHTML = '<div style="padding:20px;text-align:center;color:#999;">Belum ada export</div>';
             return;
         }
 
         let html = '';
-        data.logs.forEach(log => {
+        latestLogs.forEach(log => {
             const isSuccess = log.status === 'success';
             const isFailed = log.status === 'failed';
             const fileSize = formatBytes(log.file_size);
@@ -426,10 +414,10 @@ async function loadLatestLogs() {
             const type = parts[0] || '';
             const tahun = (parts[1] || '').replace('.json', '');
             const openBtn = isSuccess && log.filename
-                ? `<button onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#e3f2fd;">Buka</button>`
+                ? `<button onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:999px;background:#e3f2fd;">Buka</button>`
                 : '';
             const downloadBtn = isSuccess && log.filename
-                ? `<button onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#f8f9fa;">Download</button>`
+                ? `<button onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:999px;background:#f8f9fa;">Download</button>`
                 : '';
 
             html += `
