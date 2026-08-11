@@ -176,6 +176,15 @@
       overflow: hidden;
       height: 100vh;
     }
+    .admin-main > .navbar {
+      flex-shrink: 0;
+    }
+    .admin-content {
+      flex: 1;
+      padding: 20px 32px 24px;
+      overflow-y: auto;
+      min-height: 0;
+    }
 
     /* ── Navbar ── */
     .navbar {
@@ -250,12 +259,7 @@
       color: var(--teks-muted);
       font-size: .78rem;
       text-align: center;
-    }
-    .admin-content {
-      padding: 20px 32px 24px;
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
+      flex-shrink: 0;
     }
 
     /* ── Page header (reusable) ── */
@@ -521,7 +525,7 @@
     .chart-container {
       position: relative;
       width: 100%;
-      height: 220px;
+      height: 400px;
       display: flex;
       flex-direction: column;
     }
