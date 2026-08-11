@@ -77,6 +77,7 @@
       background: rgba(255,255,255,.12);
       color: white; cursor: pointer;
       align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
     .sidebar__close svg { width: 18px; height: 18px; stroke-width: 2; }
     .sidebar__brand-logo {
@@ -125,45 +126,19 @@
       font-weight: 600;
     }
 
-    .admin-shell.sidebar-collapsed .sidebar {
-      width: 76px;
-      padding-left: 10px;
-      padding-right: 10px;
-      overflow: hidden;
-    }
-
-    .admin-shell.sidebar-collapsed .sidebar__brand {
-      justify-content: center;
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    .admin-shell.sidebar-collapsed .sidebar__brand-text,
-    .admin-shell.sidebar-collapsed .sidebar__group-label,
-    .admin-shell.sidebar-collapsed .sidebar__link span {
-      display: none;
-    }
-
-    .admin-shell.sidebar-collapsed .sidebar__link {
-      justify-content: center;
-      gap: 0;
-      padding-left: 0;
-      padding-right: 0;
-    }
-
-    .admin-shell.sidebar-collapsed .navbar__menu {
-      transform: rotate(180deg);
-    }
-
     .navbar__menu {
       width: 40px; height: 40px;
       border: 0;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
+      display: none;
+      align-items: center; justify-content: center;
       color: var(--teks-muted);
       background: transparent;
       cursor: pointer;
-      transition: background .2s ease, color .2s ease, transform .2s ease;
+      transition: background .2s ease, color .2s ease;
+    }
+    .navbar__menu.visible {
+      display: flex;
     }
     .navbar__menu:hover { background: var(--content-bg); color: var(--teks); }
     .navbar__menu svg { width: 20px; height: 20px; stroke-width: 1.8; }
@@ -712,40 +687,23 @@
     }
     @media (max-width: 768px) {
       html, body { font-size: 15px; }
+      .navbar__menu { display: flex !important; }
+      .admin-main { margin-left: 0; }
       .sidebar {
-        display: flex;
         position: fixed;
-        left: 0; top: 0;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        width: 250px;
         z-index: 60;
-        width: 76px;
-        padding: 24px 8px;
-        transition: width .2s ease, padding .2s ease;
+        transition: left .3s ease;
         border-radius: 0 16px 16px 0;
       }
-      .admin-shell.sidebar-open .sidebar { width: 240px; padding: 24px 18px; }
-      .admin-shell.sidebar-open::after {
-        content: '';
-        position: fixed; inset: 0;
-        background: rgba(15,23,42,.45);
-        z-index: 55;
+      .sidebar.mobile-show {
+        left: 0;
       }
       .sidebar__close { display: inline-flex; }
       .sidebar__link  { font-size: .88rem; padding: 10px 14px; }
-      .sidebar { justify-content: stretch; }
-      .admin-shell:not(.sidebar-open) .sidebar__brand { justify-content: center; padding: 6px 0 24px; }
-      .admin-shell:not(.sidebar-open) .sidebar__link { justify-content: center; padding: 11px 0; }
-      .admin-shell:not(.sidebar-open) .sidebar__close { display: none; }
-      .admin-shell.sidebar-open .sidebar__close { display: inline-flex; margin-left: auto; }
-      .sidebar__brand-text strong { font-size: .95rem; }
-      .sidebar__brand-text small  { font-size: .68rem; }
-      .sidebar__group-label { font-size: .68rem; padding: 12px 10px 6px; }
-      .admin-shell:not(.sidebar-open) .sidebar__link span,
-      .admin-shell:not(.sidebar-open) .sidebar__brand-text,
-      .admin-shell:not(.sidebar-open) .sidebar__group-label { display: none; }
-      .admin-main { margin-left: 76px; }
-      .admin-shell.sidebar-open .admin-main { margin-left: 0; }
-      .sidebar { height: 100vh; overflow-y: auto; }
-      .admin-shell:not(.sidebar-open) .sidebar { min-height: 100%; height: auto; align-self: stretch; }
       .admin-content { padding: 16px 14px 28px; }
       .admin-footer  { padding: 10px 14px; font-size: .72rem; }
 
@@ -837,7 +795,7 @@
           <strong>SIDBM</strong>
           <small>Export</small>
         </div>
-        <button type="button" class="sidebar__close" aria-label="Tutup sidebar" onclick="this.closest('.admin-shell').classList.remove('sidebar-open')">
+        <button type="button" class="sidebar__close" aria-label="Tutup sidebar" onclick="document.querySelector('.sidebar').classList.remove('mobile-show')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 6l12 12M6 18L18 6"/>
           </svg>
@@ -899,7 +857,7 @@
       {{-- Navbar --}}
       <header class="navbar">
         <div style="display:flex; align-items:center; gap:10px;">
-          <button type="button" class="navbar__menu" aria-label="Buka atau tutup sidebar" aria-expanded="true" onclick="var s=this.closest('.admin-shell'); if(window.innerWidth<=768){s.classList.toggle('sidebar-open');}else{s.classList.toggle('sidebar-collapsed');} this.setAttribute('aria-expanded', !s.classList.contains('sidebar-collapsed') && (window.innerWidth>768 || s.classList.contains('sidebar-open')))">
+          <button type="button" class="navbar__menu" aria-label="Buka sidebar" onclick="document.querySelector('.sidebar').classList.toggle('mobile-show')" style="display:none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
@@ -941,9 +899,9 @@
          @yield('scripts')
        @endif
 
-     </div>
+      </div>
 
-  </div>
+   </div>
 
 </body>
 </html>
