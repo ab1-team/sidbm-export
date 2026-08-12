@@ -318,9 +318,6 @@ async function startBulkExport() {
     currentBatchId = data.batch_id;
     pollBatchAndLogs();
 
-    bulkRunning = false;
-    setBulkLoading(false);
-
   } catch (err) {
     addLog('error', '❌ Gagal: ' + err.message);
     bulkRunning = false;
@@ -328,11 +325,14 @@ async function startBulkExport() {
   }
 }
 
-async function pollBatchAndLogs() {
+    async function pollBatchAndLogs() {
+    let pollCount = 0;
     const timer = setInterval(async () => {
         try {
             const response = await fetch(`/api/batch/${currentBatchId}`);
             const data = await response.json();
+
+            console.log('Batch response:', data);
 
             bulkProgress.innerHTML = `
                 Total: ${data.total}<br>
@@ -343,12 +343,22 @@ async function pollBatchAndLogs() {
 
             loadLatestLogs();
 
-            if (data.finished >= data.total) {
+            pollCount++;
+            const processedCount = data.processed || 0;
+            const failedCount = data.failed || 0;
+            const totalDone = processedCount + failedCount;
+
+            const isFinished = data.finished === true || totalDone >= data.total || data.pending === 0;
+
+            if (isFinished && data.total > 0) {
+                console.log('Batch selesai! Total:', data.total, 'Processed:', processedCount, 'Failed:', failedCount);
                 clearInterval(timer);
                 addLog('success', '🎉 Semua export selesai!');
                 bulkRunning = false;
                 setBulkLoading(false);
                 loadLatestLogs();
+            } else if (pollCount % 10 === 0) {
+                console.log('Polling... Processed:', processedCount, 'Failed:', failedCount, 'Total:', data.total);
             }
 
         } catch (error) {

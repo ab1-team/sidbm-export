@@ -37,7 +37,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/export-data', [ExportController::class, 'exportData'])->name('export-data');
 
-
     Route::post('/run',    [ExportController::class, 'run'])->name('export.run');
     Route::get('/logs',    [ExportController::class, 'logs'])->name('export.logs');
 
