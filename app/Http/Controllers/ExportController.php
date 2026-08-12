@@ -5,6 +5,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Log;
 use App\Models\ExportLog;
+use App\Models\Notification;
 use App\Models\Sidbm\Kecamatan;
 use App\Services\EnStorageService;
 use App\Services\SaldoExportService;
@@ -130,6 +131,22 @@ class ExportController extends Controller
 
         $overallSuccess = collect($results)->every(fn($r) => $r['success'] ?? ($r['success'] > 0));
 
+        if (auth()->check()) {
+            if ($overallSuccess) {
+                Notification::exportSuccess(
+                    auth()->id(),
+                    $jenis,
+                    $jenis === 'semua' ? 'Semua data' : ($results[$jenis]['filename'] ?? 'unknown')
+                );
+            } else {
+                Notification::exportFailed(
+                    auth()->id(),
+                    $jenis,
+                    'Export selesai dengan error'
+                );
+            }
+        }
+
         return response()->json([
             'success' => $overallSuccess,
             'message' => $overallSuccess ? 'Export berhasil' : 'Export selesai dengan beberapa error',
@@ -177,7 +194,8 @@ foreach ($kecamatanList as $kec) {
             $jobs[] = new ExportSaldoTahunJob(
                 $kec->id,
                 $tahun,
-                $user
+                $user,
+                auth()->id()
             );
         }
 
@@ -185,7 +203,8 @@ foreach ($kecamatanList as $kec) {
             $jobs[] = new ExportTransaksiTahunJob(
                 $kec->id,
                 $tahun,
-                $user
+                $user,
+                auth()->id()
             );
         }
 
@@ -260,17 +279,27 @@ $this->ensureQueueWorkerRunning();
         $kecamatanId = $request->query('kecamatan_id');
         $jenis       = $request->query('jenis');
         $status      = $request->query('status');
+        $tahun       = $request->query('tahun');
 
         $logs = ExportLog::query()
             ->when($kecamatanId, fn($q) => $q->where('kecamatan_id', $kecamatanId))
             ->when($jenis,       fn($q) => $q->where('jenis', $jenis))
             ->when($status,      fn($q) => $q->where('status', $status))
+            ->when($tahun,       fn($q) => $q->where('tahun', $tahun))
             ->latest()
             ->paginate(25);
 
         $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
+        $tahunList = ExportLog::select('tahun')->distinct()->orderByDesc('tahun')->pluck('tahun');
 
-        return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status'));
+        $stats = [
+            'success' => ExportLog::where('status', 'success')->count(),
+            'failed'  => ExportLog::where('status', 'failed')->count(),
+        ];
+
+        $enstoragePing = $this->enstorage->ping();
+
+        return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status', 'tahun', 'tahunList', 'stats', 'enstoragePing'));
     }
 
 private function ensureQueueWorkerRunning(): void

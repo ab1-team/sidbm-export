@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Sidbm\Kecamatan;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
@@ -35,6 +35,22 @@ public function saldo(Request $request)
         auth()->user()?->name ?? 'api'
     );
 
+    if (auth()->check()) {
+        if ($result['success']) {
+            Notification::exportSuccess(
+                auth()->id(),
+                'saldo',
+                $result['filename'] ?? 'saldo_' . $request->tahun
+            );
+        } else {
+            Notification::exportFailed(
+                auth()->id(),
+                'saldo',
+                $result['message'] ?? 'Export saldo gagal'
+            );
+        }
+    }
+
     return response()->json([
         'success'    => $result['success'],
         'message'    => $result['message'],
@@ -54,6 +70,22 @@ public function transaksi(Request $request)
         (int) $request->tahun,
         auth()->user()?->name ?? 'api'
     );
+
+    if (auth()->check()) {
+        if ($result['success'] > 0) {
+            Notification::exportSuccess(
+                auth()->id(),
+                'transaksi',
+                'transaksi_' . $request->tahun
+            );
+        } else {
+            Notification::exportFailed(
+                auth()->id(),
+                'transaksi',
+                'Export transaksi gagal'
+            );
+        }
+    }
 
     return response()->json([
         'success'  => $result['success'] > 0,
@@ -85,10 +117,41 @@ public function exportBoth(Request $request)
         $transaksiResult = ['success' => 0, 'failed' => 1, 'results' => [['success' => false, 'message' => $e->getMessage()]]];
     }
 
+    $overallSuccess = $saldoResult['success'] || $transaksiResult['success'] > 0;
+
+    if (auth()->check()) {
+        if ($saldoResult['success']) {
+            Notification::exportSuccess(
+                auth()->id(),
+                'saldo',
+                $saldoResult['filename'] ?? 'saldo_' . $tahun
+            );
+        } else {
+            Notification::exportFailed(
+                auth()->id(),
+                'saldo',
+                $saldoResult['message'] ?? 'Export saldo gagal'
+            );
+        }
+        if ($transaksiResult['success'] > 0) {
+            Notification::exportSuccess(
+                auth()->id(),
+                'transaksi',
+                'transaksi_' . $tahun
+            );
+        } else {
+            Notification::exportFailed(
+                auth()->id(),
+                'transaksi',
+                'Export transaksi gagal'
+            );
+        }
+    }
+
     $logs = \App\Models\ExportLog::latest()->limit(20)->get();
 
     return response()->json([
-        'success'  => $saldoResult['success'] || $transaksiResult['success'] > 0,
+        'success'  => $overallSuccess,
         'message'  => 'Export selesai',
         'logs'     => $logs,
         'results'  => [
@@ -192,11 +255,11 @@ public function runAll(Request $request)
     foreach ($kecamatanList as $kec) {
         foreach ($tahunList as $tahun) {
             if ($jenis === 'saldo' || $jenis === 'semua') {
-                $jobs[] = new ExportSaldoTahunJob($kec->id, $tahun, $user);
+                $jobs[] = new ExportSaldoTahunJob($kec->id, $tahun, $user, auth()->id());
             }
 
             if ($jenis === 'transaksi' || $jenis === 'semua') {
-                $jobs[] = new ExportTransaksiTahunJob($kec->id, $tahun, $user);
+                $jobs[] = new ExportTransaksiTahunJob($kec->id, $tahun, $user, auth()->id());
             }
         }
     }

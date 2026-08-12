@@ -2,6 +2,7 @@
 // routes/web.php
 
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ExportController as ApiExportController;
@@ -31,7 +32,15 @@ Route::middleware('auth')->group(function () {
 
     });
 
-});
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/unread-count', [NotificationController::class, 'unread']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+    });
+
+    });
 
     Route::get('/', [ExportController::class, 'dashboard'])->name('dashboard');
 
