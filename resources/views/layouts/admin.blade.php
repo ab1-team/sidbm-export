@@ -1420,7 +1420,7 @@
       </header>
 
       {{-- Content --}}
-       <main class="admin-content">
+       <main class="admin-content @yield('content_class')">
          @yield('content')
        </main>
 

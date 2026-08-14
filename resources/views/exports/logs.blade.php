@@ -10,6 +10,233 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: relative;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  z-index: 50;
+}
+
+.custom-dropdown.is-active {
+  z-index: 200 !important;
+}
+
+.custom-dropdown__panel {
+  z-index: 201;
+}
+
+.custom-dropdown__trigger {
+  width: 100%;
+  padding: 10px 45px 10px 16px;
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-height: 42px;
+  overflow: visible;
+}
+
+.custom-dropdown__trigger:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.custom-dropdown__trigger:focus {
+  outline: none;
+  border-color: #6366F1;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+}
+
+.custom-dropdown__trigger.is-open {
+  border-color: #6366F1;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+}
+
+.custom-dropdown__text {
+  font-size: .88rem;
+  color: var(--teks-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: left;
+}
+
+.custom-dropdown__text--selected {
+  color: var(--teks);
+  font-weight: 500;
+}
+
+.custom-dropdown__chevron {
+  width: 20px;
+  height: 20px;
+  color: var(--teks-muted);
+  flex-shrink: 0;
+  transition: transform .2s ease-out;
+}
+
+.custom-dropdown__trigger.is-open .custom-dropdown__chevron {
+  transform: rotate(180deg);
+  color: #6366F1;
+}
+
+.custom-dropdown__panel {
+  position: absolute;
+  top: calc(100% - 2px);
+  left: -2px;
+  right: -2px;
+  background: white;
+  border: 2px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 101;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: visibility 0s .2s, opacity .2s ease-out, transform .2s ease-out, box-shadow .2s ease-out;
+  display: block !important;
+}
+
+.custom-dropdown__panel.is-open {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition: visibility 0s 0s, opacity .2s ease-out, transform .2s ease-out, box-shadow .2s ease-out;
+  border-radius: 16px 16px 20px 20px;
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+}
+
+.custom-dropdown__search {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.custom-dropdown__search-icon {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--teks-muted);
+  pointer-events: none;
+}
+
+.custom-dropdown__search-input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  font-size: .85rem;
+  font-family: inherit;
+  background: #F9FAFB;
+  color: var(--teks);
+  transition: all .2s ease;
+}
+
+.custom-dropdown__search-input:focus {
+  outline: none;
+  border-color: #6366F1;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.custom-dropdown__search-input::placeholder {
+  color: var(--teks-muted);
+}
+
+.custom-dropdown__options {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.custom-dropdown__options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-dropdown__options::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-dropdown__options::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+.custom-dropdown__options::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+.custom-dropdown__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s ease;
+  font-size: .88rem;
+  color: var(--teks);
+  margin: 2px 4px;
+}
+
+.custom-dropdown__option:hover {
+  background: rgba(99, 102, 241, 0.08);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+
+.custom-dropdown__option.is-selected {
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366F1;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+.custom-dropdown__option-check {
+  width: 18px;
+  height: 18px;
+  color: #6366F1;
+  opacity: 0;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.custom-dropdown__option.is-selected .custom-dropdown__option-check {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.custom-dropdown__empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--teks-muted);
+  font-size: .85rem;
+}
+
+.custom-dropdown__empty svg {
+  width: 32px;
+  height: 32px;
+  opacity: .4;
+  margin-bottom: 8px;
+}
+
+.custom-dropdown.is-active {
+  z-index: 104 !important;
 }
 
 .page-header-modern {
@@ -88,7 +315,9 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 
 .filter-card__header {
@@ -132,6 +361,7 @@
 
 .filter-card__body {
   padding: 16px 20px 20px;
+  overflow: visible;
 }
 
 .filter-grid {
@@ -146,6 +376,8 @@
   flex-direction: column;
   gap: 6px;
   transition: transform 0.3s ease;
+  position: relative;
+  overflow: visible;
 }
 
 .filter-group:hover {
@@ -296,7 +528,9 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
+  z-index: 0;
 }
 
 .table-card__header {
@@ -824,52 +1058,169 @@
       </div>
     </div>
     <div class="filter-card__body">
-      <form method="GET" action="{{ route('export.logs') }}">
+      <form method="GET" action="{{ route('export.logs') }}" id="filterForm">
         <div class="filter-grid">
           <div class="filter-group">
             <label class="filter-label">Kecamatan</label>
-            <div class="filter-select-wrapper">
-              <select name="kecamatan_id" class="filter-select">
-                <option value="">Semua</option>
-                @foreach ($kecamatanList as $kec)
-                  <option value="{{ $kec->id }}" {{ $kecamatanId == $kec->id ? 'selected' : '' }}>
-                    {{ $kec->id }} — {{ $kec->nama_kecamatan }}
-                  </option>
-                @endforeach
-              </select>
+            <div class="custom-dropdown" id="dropdownKecamatanLog">
+              <button type="button" class="custom-dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-dropdown__text">{{ $kecamatanId ? ($kecamatanList->firstWhere('id', $kecamatanId)->id . ' — ' . $kecamatanList->firstWhere('id', $kecamatanId)->nama_kec) : 'Semua' }}</span>
+                <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="custom-dropdown__panel">
+                <div class="custom-dropdown__search">
+                  <svg class="custom-dropdown__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input type="text" class="custom-dropdown__search-input" placeholder="Cari kecamatan...">
+                </div>
+                <div class="custom-dropdown__options" role="listbox">
+                  <div class="custom-dropdown__option {{ !$kecamatanId ? 'is-selected' : '' }}" data-value="" role="option">
+                    <span>Semua</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  @foreach ($kecamatanList as $kec)
+                    <div class="custom-dropdown__option {{ $kecamatanId == $kec->id ? 'is-selected' : '' }}" data-value="{{ $kec->id }}" role="option">
+                      <span>{{ $kec->id }} — {{ $kec->nama_kec }}</span>
+                      <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                  @endforeach
+                </div>
+                <div class="custom-dropdown__empty" style="display:none;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <div>Tidak ditemukan</div>
+                </div>
+              </div>
             </div>
+            <input type="hidden" name="kecamatan_id" id="inputKecamatan" value="{{ $kecamatanId ?? '' }}">
           </div>
           <div class="filter-group">
             <label class="filter-label">Jenis</label>
-            <div class="filter-select-wrapper">
-              <select name="jenis" class="filter-select">
-                <option value="">Semua</option>
-                <option value="saldo" {{ $jenis === 'saldo' ? 'selected' : '' }}>Saldo</option>
-                <option value="transaksi" {{ $jenis === 'transaksi' ? 'selected' : '' }}>Transaksi</option>
-              </select>
+            <div class="custom-dropdown" id="dropdownJenis">
+              <button type="button" class="custom-dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-dropdown__text">{{ $jenis ? ucfirst($jenis) : 'Semua' }}</span>
+                <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="custom-dropdown__panel">
+                <div class="custom-dropdown__options" role="listbox">
+                  <div class="custom-dropdown__option {{ !$jenis ? 'is-selected' : '' }}" data-value="" role="option">
+                    <span>Semua</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div class="custom-dropdown__option {{ $jenis === 'saldo' ? 'is-selected' : '' }}" data-value="saldo" role="option">
+                    <span>Saldo</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div class="custom-dropdown__option {{ $jenis === 'transaksi' ? 'is-selected' : '' }}" data-value="transaksi" role="option">
+                    <span>Transaksi</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
+            <input type="hidden" name="jenis" id="inputJenis" value="{{ $jenis ?? '' }}">
           </div>
           <div class="filter-group">
             <label class="filter-label">Status</label>
-            <div class="filter-select-wrapper">
-              <select name="status" class="filter-select">
-                <option value="">Semua</option>
-                <option value="success" {{ $status === 'success' ? 'selected' : '' }}>Success</option>
-                <option value="failed" {{ $status === 'failed' ? 'selected' : '' }}>Failed</option>
-                <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
-              </select>
+            <div class="custom-dropdown" id="dropdownStatus">
+              <button type="button" class="custom-dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-dropdown__text">{{ $status ? ucfirst($status) : 'Semua' }}</span>
+                <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="custom-dropdown__panel">
+                <div class="custom-dropdown__options" role="listbox">
+                  <div class="custom-dropdown__option {{ !$status ? 'is-selected' : '' }}" data-value="" role="option">
+                    <span>Semua</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div class="custom-dropdown__option {{ $status === 'success' ? 'is-selected' : '' }}" data-value="success" role="option">
+                    <span>Success</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div class="custom-dropdown__option {{ $status === 'failed' ? 'is-selected' : '' }}" data-value="failed" role="option">
+                    <span>Failed</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div class="custom-dropdown__option {{ $status === 'pending' ? 'is-selected' : '' }}" data-value="pending" role="option">
+                    <span>Pending</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
+            <input type="hidden" name="status" id="inputStatus" value="{{ $status ?? '' }}">
           </div>
           <div class="filter-group">
             <label class="filter-label">Tahun</label>
-            <div class="filter-select-wrapper">
-              <select name="tahun" class="filter-select">
-                <option value="">Semua</option>
-                @foreach ($tahunList as $t)
-                  <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>{{ $t }}</option>
-                @endforeach
-              </select>
+            <div class="custom-dropdown" id="dropdownTahunLog">
+              <button type="button" class="custom-dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-dropdown__text">{{ $tahun ?? 'Semua' }}</span>
+                <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="custom-dropdown__panel">
+                <div class="custom-dropdown__search">
+                  <svg class="custom-dropdown__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input type="text" class="custom-dropdown__search-input" placeholder="Cari tahun...">
+                </div>
+                <div class="custom-dropdown__options" role="listbox">
+                  <div class="custom-dropdown__option {{ !$tahun ? 'is-selected' : '' }}" data-value="" role="option">
+                    <span>Semua</span>
+                    <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  @foreach ($tahunList as $t)
+                    <div class="custom-dropdown__option {{ $tahun == $t ? 'is-selected' : '' }}" data-value="{{ $t }}" role="option">
+                      <span>{{ $t }}</span>
+                      <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                  @endforeach
+                </div>
+                <div class="custom-dropdown__empty" style="display:none;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <div>Tidak ditemukan</div>
+                </div>
+              </div>
             </div>
+            <input type="hidden" name="tahun" id="inputTahun" value="{{ $tahun ?? '' }}">
           </div>
         </div>
         <div class="filter-actions">
@@ -910,6 +1261,7 @@
       <table class="data-table">
         <thead>
           <tr>
+            <th style="width:50px;text-align:center;">No</th>
             <th>Kecamatan</th>
             <th>Jenis</th>
             <th>Tahun</th>
@@ -923,7 +1275,11 @@
         </thead>
         <tbody>
           @forelse ($logs as $log)
+            @php
+              $rowNumber = ($logs->currentPage() - 1) * $logs->perPage() + $loop->iteration;
+            @endphp
             <tr>
+              <td style="text-align:center;font-weight:600;color:var(--teks-muted);">{{ $rowNumber }}</td>
               <td>
                 <div class="cell-kecamatan">
                   <span class="cell-kecamatan__avatar">{{ $log->kecamatan_id }}</span>
@@ -952,8 +1308,14 @@
               <td>{{ $log->tahun }}</td>
               <td>{{ $log->bulan_label ?: '-' }}</td>
               <td class="cell-file">
-                @if ($log->file_url)
-                  <a href="{{ $log->file_url }}" target="_blank" class="cell-file__name">{{ $log->filename }}</a>
+                @php
+                  $fileParts = explode('_', $log->filename ?? '');
+                  $fileType = $fileParts[0] ?? '';
+                  $fileTahun = isset($fileParts[1]) ? str_replace('.json', '', $fileParts[1]) : '';
+                  $fileUrl = $log->file_url ?: ($log->filename ? "/api/export/files?kecamatan={$log->kecamatan_id}&type={$fileType}&tahun={$fileTahun}" : null);
+                @endphp
+                @if ($fileUrl && $log->status === 'success')
+                  <a href="{{ $fileUrl }}" target="_blank" class="cell-file__name">{{ $log->filename }}</a>
                 @else
                   <span class="cell-file__name text-muted">{{ $log->filename ?: '-' }}</span>
                 @endif
@@ -978,15 +1340,15 @@
               <td class="text-muted">{{ $log->created_at?->format('d M Y') }}<br><span style="font-size:.72rem;">{{ $log->created_at?->format('H:i') }}</span></td>
               <td>
                 <div class="cell-actions">
-                  @if ($log->file_url)
-                    <a href="{{ $log->file_url }}" target="_blank" class="btn-action btn-action--view" title="Lihat file">
+                  @if ($log->status === 'success' && $log->filename)
+                    <a href="/api/export/files?kecamatan={{ $log->kecamatan_id }}&type={{ $fileType }}&tahun={{ $fileTahun }}" target="_blank" class="btn-action btn-action--view" title="Lihat file">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                         <polyline points="15 3 21 3 21 9"/>
                         <line x1="10" y1="14" x2="21" y2="3"/>
                       </svg>
                     </a>
-                    <a href="{{ $log->file_url }}?download=1" class="btn-action btn-action--download" title="Download">
+                    <a href="/api/export/files?kecamatan={{ $log->kecamatan_id }}&type={{ $fileType }}&tahun={{ $fileTahun }}&download=1" class="btn-action btn-action--download" title="Download">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
@@ -999,7 +1361,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="9">
+              <td colspan="10">
                 <div class="empty-state">
                   <div class="empty-state__icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -1018,6 +1380,14 @@
     </div>
 
     @if($logs->hasPages())
+      @php
+        $filterParams = request()->only(['kecamatan_id', 'jenis', 'status', 'tahun']);
+        $filterQuery = http_build_query(array_filter($filterParams));
+        function paginateUrl($page, $filterQuery) {
+          $separator = $filterQuery ? (str_contains($page, '?') ? '&' : '?') : '';
+          return $page . ($filterQuery ? $separator . $filterQuery : '');
+        }
+      @endphp
       <div class="pagination-wrapper">
         <div class="pagination-info">
           Menampilkan {{ $logs->firstItem() ?? 0 }} - {{ $logs->lastItem() ?? 0 }} dari {{ $logs->total() }} data
@@ -1030,7 +1400,7 @@
               </svg>
             </span>
           @else
-            <a href="{{ $logs->previousPageUrl() }}">
+            <a href="{{ paginateUrl($logs->previousPageUrl(), $filterQuery) }}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"/>
               </svg>
@@ -1041,12 +1411,12 @@
             @if($page == $logs->currentPage())
               <span class="active">{{ $page }}</span>
             @else
-              <a href="{{ $url }}">{{ $page }}</a>
+              <a href="{{ paginateUrl($url, $filterQuery) }}">{{ $page }}</a>
             @endif
           @endforeach
 
           @if($logs->hasMorePages())
-            <a href="{{ $logs->nextPageUrl() }}">
+            <a href="{{ paginateUrl($logs->nextPageUrl(), $filterQuery) }}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
@@ -1064,5 +1434,189 @@
   </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  initFromUrlParams();
+  initCustomDropdowns();
+});
+
+function initFromUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  const kecamatanId = params.get('kecamatan_id');
+  const jenis = params.get('jenis');
+  const status = params.get('status');
+  const tahun = params.get('tahun');
+
+  if (kecamatanId) {
+    document.getElementById('inputKecamatan').value = kecamatanId;
+    const option = document.querySelector('#dropdownKecamatanLog .custom-dropdown__option[data-value="' + kecamatanId + '"]');
+    if (option) {
+      document.querySelector('#dropdownKecamatanLog .custom-dropdown__trigger .custom-dropdown__text').textContent = option.querySelector('span').textContent;
+      document.querySelectorAll('#dropdownKecamatanLog .custom-dropdown__option').forEach(o => o.classList.remove('is-selected'));
+      option.classList.add('is-selected');
+    }
+  }
+
+  if (jenis) {
+    document.getElementById('inputJenis').value = jenis;
+    const option = document.querySelector('#dropdownJenis .custom-dropdown__option[data-value="' + jenis + '"]');
+    if (option) {
+      document.querySelector('#dropdownJenis .custom-dropdown__trigger .custom-dropdown__text').textContent = option.querySelector('span').textContent;
+      document.querySelectorAll('#dropdownJenis .custom-dropdown__option').forEach(o => o.classList.remove('is-selected'));
+      option.classList.add('is-selected');
+    }
+  }
+
+  if (status) {
+    document.getElementById('inputStatus').value = status;
+    const option = document.querySelector('#dropdownStatus .custom-dropdown__option[data-value="' + status + '"]');
+    if (option) {
+      document.querySelector('#dropdownStatus .custom-dropdown__trigger .custom-dropdown__text').textContent = option.querySelector('span').textContent;
+      document.querySelectorAll('#dropdownStatus .custom-dropdown__option').forEach(o => o.classList.remove('is-selected'));
+      option.classList.add('is-selected');
+    }
+  }
+
+  if (tahun) {
+    document.getElementById('inputTahun').value = tahun;
+    const option = document.querySelector('#dropdownTahunLog .custom-dropdown__option[data-value="' + tahun + '"]');
+    if (option) {
+      document.querySelector('#dropdownTahunLog .custom-dropdown__trigger .custom-dropdown__text').textContent = option.querySelector('span').textContent;
+      document.querySelectorAll('#dropdownTahunLog .custom-dropdown__option').forEach(o => o.classList.remove('is-selected'));
+      option.classList.add('is-selected');
+    }
+  }
+}
+
+function initCustomDropdowns() {
+  document.querySelectorAll('.custom-dropdown').forEach(function(dropdown) {
+    const trigger = dropdown.querySelector('.custom-dropdown__trigger');
+    const panel = dropdown.querySelector('.custom-dropdown__panel');
+    const searchInput = dropdown.querySelector('.custom-dropdown__search-input');
+    const optionsContainer = dropdown.querySelector('.custom-dropdown__options');
+    const options = dropdown.querySelectorAll('.custom-dropdown__option');
+    const emptyState = dropdown.querySelector('.custom-dropdown__empty');
+    const textSpan = dropdown.querySelector('.custom-dropdown__text');
+
+    let isOpen = false;
+
+    function openDropdown() {
+      isOpen = true;
+      trigger.classList.add('is-open');
+      dropdown.classList.add('is-active');
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.classList.add('is-open');
+      setTimeout(function() {
+        if (searchInput) searchInput.focus();
+      }, 100);
+    }
+
+    function closeDropdown() {
+      isOpen = false;
+      trigger.classList.remove('is-open');
+      dropdown.classList.remove('is-active');
+      trigger.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('is-open');
+      if (searchInput) {
+        searchInput.value = '';
+        filterOptions('');
+      }
+    }
+
+    function filterOptions(query) {
+      if (!optionsContainer) return;
+      let visibleCount = 0;
+      const lowerQuery = query.toLowerCase();
+
+      options.forEach(function(option) {
+        const optionText = option.querySelector('span').textContent.toLowerCase();
+        if (optionText.includes(lowerQuery)) {
+          option.style.display = 'flex';
+          visibleCount++;
+        } else {
+          option.style.display = 'none';
+        }
+      });
+
+      if (emptyState) {
+        if (visibleCount === 0) {
+          emptyState.style.display = 'block';
+          optionsContainer.style.display = 'none';
+        } else {
+          emptyState.style.display = 'none';
+          optionsContainer.style.display = 'block';
+        }
+      }
+    }
+
+    function selectOption(option) {
+      const value = option.getAttribute('data-value');
+      const text = option.querySelector('span').textContent;
+
+      options.forEach(function(opt) {
+        opt.classList.remove('is-selected');
+      });
+      option.classList.add('is-selected');
+
+      textSpan.textContent = text;
+      textSpan.classList.add('custom-dropdown__text--selected');
+
+      if (dropdown.id === 'dropdownKecamatanLog') {
+        document.getElementById('inputKecamatan').value = value;
+      } else if (dropdown.id === 'dropdownJenis') {
+        document.getElementById('inputJenis').value = value;
+      } else if (dropdown.id === 'dropdownStatus') {
+        document.getElementById('inputStatus').value = value;
+      } else if (dropdown.id === 'dropdownTahunLog') {
+        document.getElementById('inputTahun').value = value;
+      }
+
+      closeDropdown();
+    }
+
+    trigger.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      if (isOpen) {
+        closeDropdown();
+      } else {
+        document.querySelectorAll('.custom-dropdown__panel.is-open').forEach(function(openPanel) {
+          openPanel.classList.remove('is-open');
+          openPanel.closest('.custom-dropdown').querySelector('.custom-dropdown__trigger').classList.remove('is-open');
+          openPanel.closest('.custom-dropdown').classList.remove('is-active');
+        });
+        openDropdown();
+      }
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        filterOptions(this.value);
+      });
+
+      searchInput.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+
+    options.forEach(function(option) {
+      option.addEventListener('click', function() {
+        selectOption(this);
+      });
+    });
+
+    panel.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!dropdown.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+  });
+}
+</script>
 
 @endsection

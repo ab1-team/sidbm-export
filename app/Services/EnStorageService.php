@@ -52,14 +52,14 @@ class EnStorageService
                 ];
             }
 
-            $absolutePath = storage_path('app/private/' . $fullPath);
+            $url = url("/api/exports/stream/{$fullPath}");
 
             return [
                 'success' => true,
-                'url'     => $absolutePath,
+                'url'     => $url,
                 'size'    => $fileSize,
                 'file_id' => null,
-                'message' => 'Disimpan lokal ke: ' . $absolutePath,
+                'message' => 'Disimpan lokal ke: ' . $fullPath,
             ];
 
         } catch (\Exception $e) {

@@ -12,18 +12,20 @@ use App\Http\Controllers\Api\LogController;
 
 Route::middleware('auth')->group(function () {
 
-    Route::prefix('api')->group(function () {
+Route::prefix('api')->group(function () {
 
     Route::prefix('export')->group(function () {
 
         Route::post('/saldo', [ApiExportController::class, 'saldo']);
         Route::post('/transaksi', [ApiExportController::class, 'transaksi']);
-        Route::post('/semua', [ApiExportController::class, 'exportBoth']);
+        Route::post('/semua', [ApiExportController::class, 'semua']);
         Route::post('/run-all', [ApiExportController::class, 'runAll']);
         Route::get('/logs', [LogController::class, 'latest']);
         Route::get('/files', [ApiExportController::class, 'show']);
 
     });
+
+    Route::get('/export/view', [ApiExportController::class, 'show']);
 
     Route::prefix('batch')->group(function () {
 
@@ -53,6 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/exports/batch/{batchId}/status', [ExportController::class, 'batchStatus'])->name('export.batch-status');
     Route::post('/exports/batch/{batchId}/cancel', [ExportController::class, 'batchCancel'])->name('export.batch-cancel');
     Route::get('/exports/latest-logs', [ExportController::class, 'latestLogs'])->name('exports.latestLogs');
+    Route::get('/exports/file', [ExportController::class, 'viewFile'])->name('exports.file');
+    Route::get('/exports/view', [ExportController::class, 'viewExport'])->name('exports.view');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -92,6 +92,60 @@ class ExportController extends Controller
         ]);
     }
 
+    public function viewFile(Request $request)
+    {
+        $kecamatanId = $request->query('kecamatan');
+        $type = $request->query('type');
+        $tahun = $request->query('tahun');
+
+        if (!$kecamatanId || !$type || !$tahun) {
+            abort(400, 'Parameter kecamatan, type, dan tahun diperlukan.');
+        }
+
+        $filename = "{$type}_{$tahun}.json";
+        $path = "exports/kecamatan_{$kecamatanId}/{$filename}";
+
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $content = \Illuminate\Support\Facades\Storage::disk('local')->get($path);
+
+        return response($content, 200, [
+            'Content-Type' => 'application/json',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        ]);
+    }
+
+    public function viewExport(Request $request)
+    {
+        $kecamatanId = $request->query('kecamatan');
+        $type = $request->query('type');
+        $tahun = $request->query('tahun');
+
+        if (!$kecamatanId || !$type || !$tahun) {
+            abort(400, 'Parameter kecamatan, type, dan tahun diperlukan.');
+        }
+
+        $filename = "{$type}_{$tahun}.json";
+        $path = "exports/kecamatan_{$kecamatanId}/{$filename}";
+
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $content = \Illuminate\Support\Facades\Storage::disk('local')->get($path);
+        $data = json_decode($content, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            abort(400, 'File bukan JSON yang valid.');
+        }
+
+        $isSaldo = $type === 'saldo';
+
+        return view('exports.viewer', compact('filename', 'kecamatanId', 'type', 'tahun', 'data', 'isSaldo'));
+    }
+
     /**
      * Jalankan export via AJAX dari UI (mode manual: 1 kecamatan + 1 tahun)
      * Dipanggil saat user klik tombol Export di halaman

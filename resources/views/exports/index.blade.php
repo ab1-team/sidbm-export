@@ -435,15 +435,19 @@ async function loadLatestLogs() {
             const parts = (log.filename || '').split('_');
             const type = parts[0] || '';
             const tahun = (parts[1] || '').replace('.json', '');
-            const openBtn = isSuccess && log.filename
-                ? `<button onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#e3f2fd;">Buka</button>`
+            const openBtn = isSuccess && log.file_url
+                ? `<a href="${log.file_url}" target="_blank" class="btn-sm btn-sm--primary" title="Buka">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                   </a>`
                 : '';
-            const downloadBtn = isSuccess && log.filename
-                ? `<button onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')" style="margin-left:4px;padding:2px 8px;font-size:.65rem;cursor:pointer;border:1px solid #ccc;border-radius:3px;background:#f8f9fa;">Download</button>`
+            const downloadBtn = isSuccess && log.file_url
+                ? `<a href="${log.file_url}?download=1" class="btn-sm btn-sm--secondary" title="Download">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                   </a>`
                 : '';
 
             html += `
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 5px;border-bottom:1px solid #eee;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 5px;border-bottom:1px solid #eee;position:relative;">
                     <div>
                         <div style="font-size:.9rem;font-weight:500;">
                             Kec. ${log.kecamatan_id} — ${log.jenis} ${log.tahun}
@@ -456,9 +460,9 @@ async function loadLatestLogs() {
                         </div>
                         ${log.error_message ? `<div style="font-size:.7rem;color:red;margin-top:2px;">Error: ${log.error_message}</div>` : ''}
                     </div>
-                    <div style="text-align:right;flex-shrink:0;margin-left:10px;">
+                    <div style="text-align:right;flex-shrink:0;margin-left:10px;position:relative;z-index:10;">
                         <span class="badge" style="${badgeColor}padding:3px 8px;border-radius:3px;font-size:.75rem;">${log.status}</span>
-                        <div style="margin-top:4px;">
+                        <div style="margin-top:4px;display:flex;gap:4px;justify-content:flex-end;">
                             ${openBtn}
                             ${downloadBtn}
                         </div>
@@ -469,6 +473,12 @@ async function loadLatestLogs() {
         });
 
         document.getElementById('latestLogs').innerHTML = html;
+
+        document.querySelectorAll('#latestLogs .btn-sm').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
 
     } catch (error) {
         console.error('Polling log gagal:', error);
@@ -486,5 +496,53 @@ function downloadLog(kecamatanId, filename) {
 loadLatestLogs();
 setInterval(loadLatestLogs, 5000);
 </script>
+
+<style>
+.btn-sm {
+  padding: 6px;
+  font-size: .75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 32px;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 10;
+}
+
+.btn-sm svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-sm--primary {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.btn-sm--primary:hover {
+  background: #DBEAFE;
+}
+
+.btn-sm--secondary {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.btn-sm--secondary:hover {
+  background: #E2E8F0;
+}
+
+#latestLogs button {
+  pointer-events: auto !important;
+}
+</style>
 
 @endsection

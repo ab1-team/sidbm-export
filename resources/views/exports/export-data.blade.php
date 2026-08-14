@@ -90,6 +90,7 @@
   gap: 16px;
   align-items: stretch;
   height: 100%;
+  overflow: hidden;
 }
 
 .export-card {
@@ -103,18 +104,12 @@
 }
 
 .export-card__header {
-  padding: 16px 20px 14px;
+  padding: 12px 16px 10px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
-}
-
-.export-card__body {
-  padding: 16px 20px 20px;
-  overflow-y: auto;
-  flex: 1;
 }
 
 .logs-card {
@@ -137,9 +132,9 @@
 }
 
 .export-card__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,29 +157,34 @@
 }
 
 .export-card__icon svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
 }
 
 .export-card__title {
-  font-size: 1.05rem;
+  font-size: .95rem;
   font-weight: 600;
   color: var(--teks);
   margin: 0;
 }
 
 .export-card__subtitle {
-  font-size: .78rem;
+  font-size: .72rem;
   color: var(--teks-muted);
-  margin: 2px 0 0;
+  margin: 1px 0 0;
 }
 
 .export-card__body {
-  padding: 20px 24px 24px;
+  padding: 14px 16px 16px;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-section {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .form-section:last-child {
@@ -192,19 +192,26 @@
 }
 
 .form-section__label {
-  font-size: .8rem;
+  font-size: .7rem;
   font-weight: 600;
   color: var(--teks-muted);
   text-transform: uppercase;
-  letter-spacing: .6px;
-  margin-bottom: 10px;
+  letter-spacing: .5px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.export-card__body .form-label {
+  font-size: .78rem;
+  font-weight: 500;
+  margin-bottom: 5px;
   display: block;
 }
 
 .radio-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .radio-card {
@@ -222,8 +229,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 12px;
+  gap: 4px;
+  padding: 10px 8px;
   background: #F9FAFB;
   border: 2px solid var(--border);
   border-radius: 50px;
@@ -236,7 +243,7 @@
 .radio-card__label:hover {
   border-color: #CBD5E1;
   background: #F1F5F9;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
@@ -248,8 +255,8 @@
 }
 
 .radio-card__icon {
-  width: 36px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -259,7 +266,7 @@
 
 .radio-card__label:hover .radio-card__icon,
 .radio-card input:checked + .radio-card__label .radio-card__icon {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .radio-card__icon--blue {
@@ -278,12 +285,12 @@
 }
 
 .radio-card__icon svg {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
 }
 
 .radio-card__text {
-  font-size: .82rem;
+  font-size: .75rem;
   font-weight: 600;
   color: var(--teks);
 }
@@ -516,8 +523,8 @@
   display: flex;
   background: #F1F5F9;
   border-radius: 50px;
-  padding: 5px;
-  gap: 5px;
+  padding: 3px;
+  gap: 3px;
   position: relative;
   overflow: hidden;
 }
@@ -525,10 +532,10 @@
 .mode-tabs::before {
   content: '';
   position: absolute;
-  top: 5px;
-  left: 5px;
-  width: calc(50% - 5px);
-  height: calc(100% - 10px);
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
   background: white;
   border-radius: 50px;
   box-shadow: 0 2px 10px rgba(82, 109, 130, 0.2);
@@ -542,11 +549,11 @@
 
 .mode-tab {
   flex: 1;
-  padding: 12px 16px;
+  padding: 6px 10px;
   border: none;
   background: transparent;
   border-radius: 50px;
-  font-size: .82rem;
+  font-size: .72rem;
   font-weight: 600;
   color: var(--teks-muted);
   cursor: pointer;
@@ -566,25 +573,30 @@
 
 .mode-content {
   display: none;
-  padding-top: 16px;
+  padding-top: 8px;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
 }
 
 .mode-content.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .form-hint {
-  font-size: .75rem;
+  font-size: .7rem;
   color: var(--teks-muted);
-  margin-top: 6px;
+  margin-top: 4px;
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 5px;
 }
 
 .form-hint svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -593,14 +605,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
   width: 100%;
-  padding: 14px 24px;
+  padding: 10px 16px;
   background: linear-gradient(135deg, var(--sidebar) 0%, var(--sidebar-hov) 100%);
   color: white;
   border: none;
   border-radius: 50px;
-  font-size: .95rem;
+  font-size: .82rem;
   font-weight: 600;
   cursor: pointer;
   transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -608,6 +620,8 @@
   box-shadow: 0 4px 14px rgba(82, 109, 130, 0.35);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .btn-export::before {
@@ -665,36 +679,36 @@
 
 .progress-bar {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: #E5E7EB;
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .progress-bar__fill {
   height: 100%;
   background: linear-gradient(90deg, #22C55E, #16A34A);
-  border-radius: 4px;
+  border-radius: 3px;
   transition: width .3s ease;
 }
 
 .bulk-progress {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .bulk-progress__item {
   background: #F9FAFB;
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 6px;
+  padding: 6px;
   text-align: center;
 }
 
 .bulk-progress__num {
-  font-size: 1.3rem;
+  font-size: .88rem;
   font-weight: 700;
   color: var(--teks);
 }
@@ -704,9 +718,9 @@
 .bulk-progress__num--pending { color: #D97706; }
 
 .bulk-progress__label {
-  font-size: .7rem;
+  font-size: .58rem;
   color: var(--teks-muted);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .logs-card__title {
@@ -831,7 +845,7 @@
 }
 
 .btn-sm {
-  padding: 6px 12px;
+  padding: 6px;
   font-size: .75rem;
   font-weight: 600;
   border-radius: 6px;
@@ -841,12 +855,14 @@
   font-family: inherit;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  min-width: 32px;
 }
 
 .btn-sm svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .btn-sm--primary {
@@ -933,10 +949,6 @@
   animation: slideUp .5s ease-out .15s both;
 }
 
-.mode-content {
-  animation: fadeIn .4s ease-out;
-}
-
 .mode-content.active {
   animation: fadeIn .4s ease-out;
 }
@@ -968,7 +980,7 @@
 
 @media (max-width: 768px) {
   .page-header-modern {
-    padding: 20px;
+    padding: 16px;
     flex-direction: column;
     align-items: flex-start;
   }
@@ -977,13 +989,23 @@
     font-size: 1.2rem;
   }
 
+  .page-header-modern__icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .page-header-modern__icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
   .ping-badge {
     width: 100%;
     justify-content: center;
   }
 
   .export-card__body {
-    padding: 16px;
+    padding: 14px;
   }
 
   .radio-cards {
@@ -1006,6 +1028,7 @@
 
   .mode-content {
     padding-top: 12px;
+    overflow: visible;
   }
   
   .logs-item {
@@ -1041,207 +1064,258 @@
 }
 </style>
 
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
 <style>
-.select2-container {
+/* Custom Dropdown Styles */
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  z-index: 101;
+}
+
+#dropdownKecamatan {
+  z-index: 103;
+}
+
+#dropdownTahun {
+  z-index: 102;
+}
+
+.custom-dropdown.is-active {
+  z-index: 104 !important;
+}
+
+.export-card {
+  position: relative;
+}
+
+.export-card__body {
+  position: relative;
+  z-index: 1;
+}
+
+.dropdown-overflow-wrapper {
+  position: relative;
+  z-index: 100;
+}
+
+
+
+
+
+.custom-dropdown__trigger {
+  width: 100%;
+  padding: 8px 36px 8px 12px;
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  min-height: 38px;
+  position: relative;
+  z-index: 107;
+}
+
+.custom-dropdown__trigger:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.custom-dropdown__trigger:focus {
+  outline: none;
+  border-color: #6366F1;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+}
+
+.custom-dropdown__trigger.is-open {
+  border-color: #6366F1;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35), 0 4px 15px rgba(0, 0, 0, 0.12);
+  border-bottom: none;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(99, 102, 241, 0.02));
+}
+
+.custom-dropdown.is-open .custom-dropdown__trigger {
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35), 0 4px 15px rgba(0, 0, 0, 0.12);
+  border-color: #6366F1;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(99, 102, 241, 0.02));
+}
+
+.custom-dropdown__text {
+  font-size: .85rem;
+  color: var(--teks-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: left;
+}
+
+.custom-dropdown__text--selected {
+  color: var(--teks);
+  font-weight: 500;
+}
+
+.custom-dropdown__chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--teks-muted);
+  flex-shrink: 0;
+  transition: transform .2s ease-out;
+}
+
+.custom-dropdown__trigger.is-open .custom-dropdown__chevron {
+  transform: rotate(180deg);
+  color: #6366F1;
+}
+
+.custom-dropdown__panel {
+  position: absolute;
+  top: calc(100% - 2px);
+  left: -2px;
+  right: -2px;
+  background: white;
+  border: 2px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 101;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: visibility 0s .2s, opacity .2s ease-out, transform .2s ease-out, box-shadow .2s ease-out;
   display: block !important;
 }
 
-.select2-container--default {
-  width: 100% !important;
+.custom-dropdown__panel.is-open {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition: visibility 0s 0s, opacity .2s ease-out, transform .2s ease-out, box-shadow .2s ease-out;
+  border-radius: 16px 16px 20px 20px;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25), 0 4px 15px rgba(0, 0, 0, 0.12);
 }
 
-.select2-container--default .select2-selection--single {
-  border-radius: 50px !important;
-  border: 2px solid var(--border) !important;
-  height: 44px !important;
-  position: relative !important;
-  line-height: 44px !important;
-  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-  background: white !important;
-  display: table !important;
-  width: 100% !important;
+.custom-dropdown__search {
+  padding: 6px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
 }
 
-.select2-container--default .select2-selection__rendered {
-  display: table-cell !important;
-  vertical-align: middle !important;
-  font-size: 13px !important;
-  color: var(--teks) !important;
-  padding: 0 45px 0 18px !important;
-  line-height: 44px !important;
-  height: 44px !important;
+.custom-dropdown__search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--teks-muted);
+  pointer-events: none;
 }
 
-.select2-container--default .select2-selection__placeholder {
-  display: table-cell !important;
-  vertical-align: middle !important;
-  font-size: 13px !important;
-  color: var(--teks-muted) !important;
-  padding: 0 45px 0 18px !important;
-  line-height: 44px !important;
-  height: 44px !important;
+.custom-dropdown__search-input {
+  width: 100%;
+  padding: 8px 14px 8px 36px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  font-size: .82rem;
+  font-family: inherit;
+  background: #F9FAFB;
+  color: var(--teks);
+  transition: all .2s ease;
 }
 
-.select2-container--default .select2-selection--single:hover {
-  border-color: #CBD5E1 !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-1px);
+.custom-dropdown__search-input:focus {
+  outline: none;
+  border-color: #6366F1;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-.select2-container--default .select2-selection--single:focus,
-.select2-container--default.select2-container--open .select2-selection--single {
-  border-color: var(--sidebar) !important;
-  box-shadow: 0 4px 20px rgba(82, 109, 130, 0.25) !important;
-  transform: translateY(-1px);
+.custom-dropdown__search-input::placeholder {
+  color: var(--teks-muted);
 }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-  font-size: 13px !important;
-  color: var(--teks) !important;
-  padding: 0 10px 0 0 !important;
-  line-height: 1 !important;
-  flex: 1 !important;
-  display: flex !important;
-  align-items: center !important;
+.custom-dropdown__options {
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 4px;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__placeholder {
-  color: var(--teks-muted) !important;
-  font-size: 13px !important;
-  padding: 0 10px 0 0 !important;
-  line-height: 1 !important;
-  display: flex !important;
-  align-items: center !important;
+.custom-dropdown__options::-webkit-scrollbar {
+  width: 6px;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__clear {
-  display: none !important;
+.custom-dropdown__options::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-  width: 44px !important;
-  height: 44px !important;
-  top: 0 !important;
-  right: 0 !important;
-  transition: transform .3s ease !important;
-  position: absolute !important;
-  border-radius: 0 50px 50px 0 !important;
-  overflow: hidden !important;
-  background: transparent !important;
+.custom-dropdown__options::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
 }
 
-.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
-  transform: rotate(180deg) !important;
+.custom-dropdown__options::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow b {
-  border-color: var(--teks-muted) transparent transparent transparent !important;
-  transition: transform .3s ease !important;
-  margin-top: 0 !important;
-  margin-left: 0 !important;
-  position: relative !important;
-  top: 0 !important;
-  left: 0 !important;
+.custom-dropdown__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s ease;
+  font-size: .85rem;
+  color: var(--teks);
+  margin: 2px 4px;
 }
 
-.select2-dropdown {
-  border-radius: 16px !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
-  overflow: hidden;
-  padding: 8px !important;
-  margin-top: 8px !important;
-  animation: dropdownSlideIn .25s ease-out !important;
-}
-
-@keyframes dropdownSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.select2-results__option:nth-child(5) { animation-delay: 120ms; }
-.select2-results__option:nth-child(6) { animation-delay: 150ms; }
-.select2-results__option:nth-child(7) { animation-delay: 180ms; }
-.select2-results__option:nth-child(8) { animation-delay: 210ms; }
-.select2-results__option:nth-child(9) { animation-delay: 240ms; }
-.select2-results__option:nth-child(10) { animation-delay: 270ms; }
-
-.select2-results__option:hover {
-  background: #F1F5F9 !important;
+.custom-dropdown__option:hover {
+  background: rgba(99, 102, 241, 0.08);
   transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
 }
 
-.select2-container--default .select2-results__option--highlighted[aria-selected]:hover {
-  background: rgba(82, 109, 130, 0.2) !important;
+.custom-dropdown__option.is-selected {
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366F1;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
 }
 
-.select2-container--default.select2-container--open.select2-container--below .select2-selection--single {
-  border-bottom-left-radius: 16px !important;
-  border-bottom-right-radius: 16px !important;
+.custom-dropdown__option-check {
+  width: 18px;
+  height: 18px;
+  color: #6366F1;
+  opacity: 0;
+  transition: opacity .2s ease, transform .2s ease;
 }
 
-.select2-container--default.select2-container--open.select2-container--above .select2-selection--single {
-  border-top-left-radius: 16px !important;
-  border-top-right-radius: 16px !important;
+.custom-dropdown__option.is-selected .custom-dropdown__option-check {
+  opacity: 1;
+  transform: scale(1.1);
 }
 
-.select2-container--default.select2-container--open.select2-container--below .select2-dropdown {
-  border-top-left-radius: 16px !important;
-  border-top-right-radius: 16px !important;
-  margin-top: 0 !important;
-  margin-bottom: 8px !important;
+.custom-dropdown__empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--teks-muted);
+  font-size: .85rem;
 }
 
-.select2-container--default.select2-container--open.select2-container--above .select2-dropdown {
-  border-bottom-left-radius: 16px !important;
-  border-bottom-right-radius: 16px !important;
-  margin-bottom: 0 !important;
-  margin-top: 8px !important;
-}
-
-.select2-container--default .select2-search--dropdown {
-  padding: 8px !important;
-}
-
-.dropdown-kecamatan + .select2-container .select2-selection--single .select2-selection__arrow,
-.dropdown-tahun + .select2-container .select2-selection--single .select2-selection__arrow {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 0 50px 50px 0 !important;
-  right: 0 !important;
-  overflow: hidden !important;
-  background: transparent !important;
-}
-
-.dropdown-kecamatan + .select2-container .select2-selection--single .select2-selection__arrow b,
-.dropdown-tahun + .select2-container .select2-selection--single .select2-selection__arrow b {
-  border-color: #6B7280 transparent transparent transparent !important;
-  border-width: 6px 5px 0 5px !important;
-  margin-left: -5px !important;
-}
-
-.dropdown-kecamatan + .select2-container .select2-search--dropdown .select2-search__field,
-.dropdown-tahun + .select2-container .select2-search--dropdown .select2-search__field {
-  border-radius: 50px !important;
-  text-align: center !important;
-  padding: 10px 50px 10px 16px !important;
-}
-
-.dropdown-kecamatan + .select2-container .select2-search--dropdown .select2-search__field::placeholder,
-.dropdown-tahun + .select2-container .select2-search--dropdown .select2-search__field::placeholder {
-  color: #9CA3AF !important;
-  text-align: center !important;
+.custom-dropdown__empty svg {
+  width: 32px;
+  height: 32px;
+  opacity: .4;
+  margin-bottom: 8px;
 }
 </style>
 
@@ -1339,25 +1413,77 @@
         <div id="manualContent" class="mode-content active">
           <div class="form-section">
             <label class="form-label">Kecamatan</label>
-            <div class="select2-wrapper dropdown-kecamatan">
-              <select id="kecamatanId" class="select2-search">
-                <option value="">-- Pilih Kecamatan --</option>
-                @foreach ($kecamatanList as $kec)
-                  <option value="{{ $kec->id }}">{{ $kec->id }} — {{ $kec->nama_kecamatan }}</option>
-                @endforeach
-              </select>
+            <div class="custom-dropdown" id="dropdownKecamatan">
+              <button type="button" class="custom-dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-dropdown__text">-- Pilih Kecamatan --</span>
+                <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="custom-dropdown__panel">
+                <div class="custom-dropdown__search">
+                  <svg class="custom-dropdown__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input type="text" class="custom-dropdown__search-input" placeholder="Cari kecamatan...">
+                </div>
+                <div class="custom-dropdown__options" role="listbox">
+                  @foreach ($kecamatanList as $kec)
+                    <div class="custom-dropdown__option" data-value="{{ $kec->id }}" role="option">
+                      <span>{{ $kec->id }} — {{ $kec->nama_kecamatan }}</span>
+                      <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                  @endforeach
+                </div>
+                <div class="custom-dropdown__empty" style="display:none;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <div>Tidak ditemukan</div>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="form-section">
             <label class="form-label">Tahun</label>
-            <div class="select2-wrapper dropdown-tahun">
-              <select id="tahun" class="select2-search">
-                <option value="">-- Pilih Tahun --</option>
-                @foreach ($tahunList as $t)
-                  <option value="{{ $t }}">{{ $t }}</option>
-                @endforeach
-              </select>
+            <div class="custom-dropdown" id="dropdownTahun">
+              <button type="button" class="custom-dropdown__trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="custom-dropdown__text">-- Pilih Tahun --</span>
+                <svg class="custom-dropdown__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="custom-dropdown__panel">
+                <div class="custom-dropdown__search">
+                  <svg class="custom-dropdown__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <input type="text" class="custom-dropdown__search-input" placeholder="Cari tahun...">
+                </div>
+                <div class="custom-dropdown__options" role="listbox">
+                  @foreach ($tahunList as $t)
+                    <div class="custom-dropdown__option" data-value="{{ $t }}" role="option">
+                      <span>{{ $t }}</span>
+                      <svg class="custom-dropdown__option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                  @endforeach
+                </div>
+                <div class="custom-dropdown__empty" style="display:none;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <div>Tidak ditemukan</div>
+                </div>
+              </div>
             </div>
             <p class="form-hint">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -1381,7 +1507,7 @@
         </div>
 
         <div id="bulkContent" class="mode-content">
-          <p class="form-hint" style="margin-bottom: 16px;">
+          <p class="form-hint" style="margin-bottom: 8px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
@@ -1446,54 +1572,178 @@
 </div>
 
 <script>
-$(document).ready(function () {
-  $('.select2-search').select2({
-    placeholder: "Cari...",
-    width: '100%',
-    theme: 'classic',
-    dropdownCssClass: 'select2-dropdown-animated',
-    escapeMarkup: function(markup) {
-      return markup;
-    },
-    language: {
-      searching: function() {
-        return "Mencari...";
-      },
-      noResults: function() {
-        return "Tidak ditemukan";
+document.addEventListener('DOMContentLoaded', function() {
+  initCustomDropdowns();
+});
+
+function initCustomDropdowns() {
+  document.querySelectorAll('.custom-dropdown').forEach(function(dropdown) {
+    const trigger = dropdown.querySelector('.custom-dropdown__trigger');
+    const panel = dropdown.querySelector('.custom-dropdown__panel');
+    const searchInput = dropdown.querySelector('.custom-dropdown__search-input');
+    const optionsContainer = dropdown.querySelector('.custom-dropdown__options');
+    const options = dropdown.querySelectorAll('.custom-dropdown__option');
+    const emptyState = dropdown.querySelector('.custom-dropdown__empty');
+    const textSpan = dropdown.querySelector('.custom-dropdown__text');
+
+    let isOpen = false;
+    let selectedValue = null;
+    let selectedText = null;
+
+    function openDropdown() {
+      isOpen = true;
+      trigger.classList.add('is-open');
+      dropdown.classList.add('is-active', 'is-open');
+
+      const rect = trigger.getBoundingClientRect();
+      const panelWidth = panel.offsetWidth || rect.width;
+
+      panel.style.position = 'fixed';
+      panel.style.left = rect.left + 'px';
+      panel.style.top = (rect.bottom + 4) + 'px';
+      panel.style.width = panelWidth + 'px';
+      panel.style.minWidth = panelWidth + 'px';
+
+      panel.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+      setTimeout(function() {
+        if (searchInput) searchInput.focus();
+      }, 100);
+    }
+
+    function closeDropdown() {
+      isOpen = false;
+      trigger.classList.remove('is-open');
+      dropdown.classList.remove('is-active', 'is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+      panel.classList.remove('is-open');
+
+      panel.style.position = '';
+      panel.style.left = '';
+      panel.style.top = '';
+      panel.style.width = '';
+      panel.style.minWidth = '';
+
+      if (searchInput) {
+        searchInput.value = '';
+        filterOptions('');
       }
     }
-  });
 
-  function fixSelect2Styles() {
-    document.querySelectorAll('.select2-container--default .select2-selection__arrow').forEach(function(el) {
-      el.style.setProperty('width', '44px', 'important');
-      el.style.setProperty('height', '44px', 'important');
-      el.style.setProperty('right', '0', 'important');
-      el.style.setProperty('border-radius', '0 50px 50px 0', 'important');
-      el.style.setProperty('overflow', 'hidden', 'important');
+    function filterOptions(query) {
+      let visibleCount = 0;
+      const lowerQuery = query.toLowerCase();
+
+      options.forEach(function(option) {
+        const optionText = option.querySelector('span').textContent.toLowerCase();
+        if (optionText.includes(lowerQuery)) {
+          option.style.display = 'flex';
+          visibleCount++;
+        } else {
+          option.style.display = 'none';
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.style.display = 'block';
+        optionsContainer.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        optionsContainer.style.display = 'block';
+      }
+    }
+
+    function selectOption(option) {
+      const value = option.getAttribute('data-value');
+      const text = option.querySelector('span').textContent;
+
+      options.forEach(function(opt) {
+        opt.classList.remove('is-selected');
+      });
+      option.classList.add('is-selected');
+
+      selectedValue = value;
+      selectedText = text;
+      textSpan.textContent = text;
+      textSpan.classList.add('custom-dropdown__text--selected');
+
+      closeDropdown();
+      trigger.setAttribute('data-selected', value);
+
+      if (dropdown.id === 'dropdownKecamatan') {
+        window.selectedKecamatan = value;
+      } else if (dropdown.id === 'dropdownTahun') {
+        window.selectedTahun = value;
+      }
+      checkForm();
+    }
+
+    trigger.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      if (isOpen) {
+        closeDropdown();
+      } else {
+        document.querySelectorAll('.custom-dropdown__panel.is-open').forEach(function(openPanel) {
+          openPanel.classList.remove('is-open');
+          openPanel.closest('.custom-dropdown').querySelector('.custom-dropdown__trigger').classList.remove('is-open');
+        });
+        openDropdown();
+      }
     });
 
-    document.querySelectorAll('.select2-container--default .select2-search--dropdown .select2-search__field').forEach(function(el) {
-      el.style.setProperty('border-radius', '50px', 'important');
-      el.style.setProperty('text-align', 'center', 'important');
-      el.style.setProperty('padding-right', '50px', 'important');
+    searchInput.addEventListener('input', function() {
+      filterOptions(this.value);
     });
-  }
 
-  setTimeout(fixSelect2Styles, 100);
+    searchInput.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
 
-  $(document).on('select2:opening', '.select2-search', function() {
-    $(this).find('.select2-selection--single').addClass('select2-opening');
+    options.forEach(function(option) {
+      option.addEventListener('click', function() {
+        selectOption(this);
+      });
+    });
+
+    panel.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!dropdown.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+
+    trigger.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeDropdown();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (isOpen) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      } else if (e.key === 'ArrowDown' && isOpen) {
+        e.preventDefault();
+        const visibleOptions = Array.from(options).filter(function(opt) {
+          return opt.style.display !== 'none';
+        });
+        if (visibleOptions.length > 0) {
+          const currentIndex = visibleOptions.findIndex(function(opt) {
+            return opt.classList.contains('is-selected');
+          });
+          const nextIndex = currentIndex < visibleOptions.length - 1 ? currentIndex + 1 : 0;
+          visibleOptions[nextIndex].focus();
+        }
+      }
+    });
   });
+}
 
-  $(document).on('select2:close', '.select2-search', function() {
-    $(this).find('.select2-selection--single').removeClass('select2-opening');
-  });
-
-  $('#kecamatanId, #tahun').on('change', checkForm);
-  checkForm();
-});
+window.selectedKecamatan = null;
+window.selectedTahun = null;
 
 const modeTabsContainer = document.getElementById('modeTabs');
 const modeTabs = document.querySelectorAll('.mode-tab');
@@ -1518,8 +1768,8 @@ modeTabs.forEach(tab => {
 });
 
 function checkForm() {
-  const kec = $('#kecamatanId').val();
-  const tahun = $('#tahun').val();
+  const kec = window.selectedKecamatan;
+  const tahun = window.selectedTahun;
   document.getElementById('btnExport').disabled = !(kec && tahun) || isBusy();
 }
 
@@ -1534,14 +1784,12 @@ let currentBatchId = null;
 const btnExport = document.getElementById('btnExport');
 const btnText = document.getElementById('btnText');
 const btnLoading = document.getElementById('btnLoading');
-const selKecamatan = document.getElementById('kecamatanId');
-const selTahun = document.getElementById('tahun');
 
 btnExport.addEventListener('click', async () => {
   if (isBusy()) return;
 
-  const kecamatanId = selKecamatan.value;
-  const tahun = selTahun.value;
+  const kecamatanId = window.selectedKecamatan;
+  const tahun = window.selectedTahun;
   const jenis = document.querySelector('input[name="jenis"]:checked').value;
 
   let url = '';
@@ -1580,11 +1828,9 @@ btnExport.addEventListener('click', async () => {
 });
 
 function setManualLoading(v) {
-  btnExport.disabled = v || !(selKecamatan.value && selTahun.value);
+  btnExport.disabled = v || !(window.selectedKecamatan && window.selectedTahun);
   btnText.style.display = v ? 'none' : 'inline';
   btnLoading.style.display = v ? 'inline-block' : 'none';
-  document.getElementById('kecamatanId').disabled = v;
-  document.getElementById('tahun').disabled = v;
 }
 
 const btnBulkExport = document.getElementById('btnBulkExport');
@@ -1726,13 +1972,11 @@ async function loadLatestLogs() {
       const openBtn = log.status === 'success' && log.filename
         ? `<button class="btn-sm btn-sm--primary" onclick="window.open('/api/export/files?kecamatan=${log.kecamatan_id}&type=${type}&tahun=${tahun}', '_blank')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Buka
            </button>`
         : '';
       const downloadBtn = log.status === 'success' && log.filename
         ? `<button class="btn-sm btn-sm--secondary" onclick="downloadLog('${log.kecamatan_id}', '${log.filename}')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download
            </button>`
         : '';
 
