@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: calc(100vh - 70px - 70px - 52px);
+  padding-bottom: 20px;
 }
 
 .page-header-modern {
@@ -89,8 +89,6 @@
   grid-template-columns: 1fr 1.1fr;
   gap: 16px;
   align-items: stretch;
-  height: 100%;
-  overflow: hidden;
 }
 
 .export-card {
@@ -98,7 +96,7 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
@@ -117,9 +115,10 @@
   border-radius: 16px;
   border: 1px solid var(--border);
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .logs-card__header {
@@ -176,7 +175,7 @@
 
 .export-card__body {
   padding: 14px 16px 16px;
-  overflow: hidden;
+  overflow: visible;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -185,6 +184,8 @@
 .form-section {
   margin-bottom: 12px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .form-section:last-child {
@@ -1026,6 +1027,10 @@
     padding: 12px 45px 12px 16px !important;
   }
 
+  .export-card__body {
+    padding: 14px;
+  }
+  
   .mode-content {
     padding-top: 12px;
     overflow: visible;
@@ -1049,17 +1054,26 @@
   .bulk-progress {
     grid-template-columns: repeat(2, 1fr);
   }
-}
-
-@media (max-width: 480px) {
-  .page-header-modern__icon {
-    width: 48px;
-    height: 48px;
+  
+  .export-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
   
-  .export-card__icon {
-    width: 38px;
-    height: 38px;
+  .export-card,
+  .logs-card {
+    width: 100%;
+    overflow: visible;
+  }
+  
+  .form-section {
+    position: relative;
+    overflow: visible;
+    z-index: 1;
+  }
+  
+  .custom-dropdown {
+    z-index: 1;
   }
 }
 </style>
@@ -1096,6 +1110,46 @@
 .dropdown-overflow-wrapper {
   position: relative;
   z-index: 100;
+}
+
+@media (max-width: 768px) {
+  body.dropdown-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .export-card.dropdown-active,
+  .logs-card.dropdown-active {
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .export-card__body.dropdown-active,
+  .logs-card__body.dropdown-active {
+    overflow: hidden;
+  }
+  
+  .custom-dropdown {
+    z-index: 201;
+  }
+  
+  .custom-dropdown.is-active {
+    z-index: 202 !important;
+  }
+  
+  .export-card {
+    overflow: visible;
+  }
+  
+  .export-card__body {
+    overflow: visible;
+  }
+  
+  .logs-card {
+    overflow: visible;
+  }
 }
 
 
@@ -1590,39 +1644,76 @@ function initCustomDropdowns() {
     let selectedValue = null;
     let selectedText = null;
 
-    function openDropdown() {
+    function openDropdown(e) {
+      if (e) e.preventDefault();
+      if (isOpen) return;
+      
       isOpen = true;
       trigger.classList.add('is-open');
       dropdown.classList.add('is-active', 'is-open');
-
+      trigger.setAttribute('aria-expanded', 'true');
+      
       const rect = trigger.getBoundingClientRect();
       const panelWidth = panel.offsetWidth || rect.width;
-
-      panel.style.position = 'fixed';
-      panel.style.left = rect.left + 'px';
-      panel.style.top = (rect.bottom + 4) + 'px';
-      panel.style.width = panelWidth + 'px';
-      panel.style.minWidth = panelWidth + 'px';
+      const isMobile = window.innerWidth <= 768;
+      
+      if (isMobile) {
+        // For mobile, use absolute positioning within the form-section
+        panel.style.position = 'absolute';
+        panel.style.left = '-2px';
+        panel.style.right = '-2px';
+        panel.style.top = 'calc(100% + 2px)';
+        panel.style.width = 'auto';
+        panel.style.minWidth = 'auto';
+        panel.style.maxHeight = '180px';
+        panel.style.overflowY = 'auto';
+        panel.style.zIndex = '999';
+        
+        // Allow the form-section to overflow
+        const formSection = dropdown.closest('.form-section');
+        if (formSection) {
+          formSection.style.overflow = 'visible';
+          formSection.style.zIndex = '998';
+        }
+        
+        // Scroll dropdown into view if needed
+        setTimeout(function() {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 10);
+      }
 
       panel.classList.add('is-open');
-      trigger.setAttribute('aria-expanded', 'true');
+      
       setTimeout(function() {
         if (searchInput) searchInput.focus();
-      }, 100);
+      }, 50);
     }
 
     function closeDropdown() {
+      if (!isOpen) return;
+      
       isOpen = false;
       trigger.classList.remove('is-open');
       dropdown.classList.remove('is-active', 'is-open');
       trigger.setAttribute('aria-expanded', 'false');
       panel.classList.remove('is-open');
-
+      
       panel.style.position = '';
       panel.style.left = '';
+      panel.style.right = '';
       panel.style.top = '';
       panel.style.width = '';
       panel.style.minWidth = '';
+      panel.style.maxHeight = '';
+      panel.style.overflowY = '';
+      panel.style.zIndex = '';
+      
+      // Reset form-section overflow
+      const formSection = dropdown.closest('.form-section');
+      if (formSection) {
+        formSection.style.overflow = '';
+        formSection.style.zIndex = '';
+      }
 
       if (searchInput) {
         searchInput.value = '';
@@ -1893,6 +1984,7 @@ async function pollBatchAndLogs() {
 
       loadLatestLogs();
 
+      const totalDone = (data.processed || 0) + (data.failed || 0);
       if (data.finished >= data.total) {
         clearInterval(timer);
         bulkRunning = false;

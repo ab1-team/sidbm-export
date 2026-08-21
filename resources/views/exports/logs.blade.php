@@ -377,6 +377,8 @@
   gap: 6px;
   transition: transform 0.3s ease;
   position: relative;
+  z-index: 1;
+}
   overflow: visible;
 }
 
@@ -1018,6 +1020,59 @@
     width: 14px;
     height: 14px;
   }
+  
+  .page-header-modern {
+    padding: 16px;
+  }
+  
+  .page-header-modern__icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .page-header-modern__text h1 {
+    font-size: 1.1rem;
+  }
+  
+  .ping-badge {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 14px;
+  }
+  
+  .filter-card,
+  .filter-card__body {
+    overflow: visible;
+  }
+  
+  .filter-grid {
+    position: relative;
+  }
+  
+  .filter-group {
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .custom-dropdown {
+    z-index: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-card__header {
+    padding: 12px 14px;
+  }
+  
+  .data-table {
+    min-width: 700px;
+  }
+  
+  .badge-status {
+    padding: 4px 8px;
+    font-size: .7rem;
+  }
 }
 </style>
 
@@ -1502,23 +1557,73 @@ function initCustomDropdowns() {
 
     let isOpen = false;
 
-    function openDropdown() {
+    function openDropdown(e) {
+      if (e) e.preventDefault();
+      if (isOpen) return;
+      
       isOpen = true;
       trigger.classList.add('is-open');
       dropdown.classList.add('is-active');
       trigger.setAttribute('aria-expanded', 'true');
+      
+      const rect = trigger.getBoundingClientRect();
+      const panelWidth = panel.offsetWidth || rect.width;
+      const isMobile = window.innerWidth <= 768;
+      
+      if (isMobile) {
+        panel.style.position = 'absolute';
+        panel.style.left = '-2px';
+        panel.style.right = '-2px';
+        panel.style.top = 'calc(100% + 2px)';
+        panel.style.width = 'auto';
+        panel.style.minWidth = 'auto';
+        panel.style.maxHeight = '180px';
+        panel.style.overflowY = 'auto';
+        panel.style.zIndex = '999';
+        
+        const formSection = dropdown.closest('.filter-group');
+        if (formSection) {
+          formSection.style.overflow = 'visible';
+          formSection.style.zIndex = '998';
+        }
+        
+        setTimeout(function() {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 10);
+      }
+      
       panel.classList.add('is-open');
+      
       setTimeout(function() {
         if (searchInput) searchInput.focus();
-      }, 100);
+      }, 50);
     }
 
     function closeDropdown() {
+      if (!isOpen) return;
+      
       isOpen = false;
       trigger.classList.remove('is-open');
       dropdown.classList.remove('is-active');
       trigger.setAttribute('aria-expanded', 'false');
       panel.classList.remove('is-open');
+      
+      panel.style.position = '';
+      panel.style.left = '';
+      panel.style.right = '';
+      panel.style.top = '';
+      panel.style.width = '';
+      panel.style.minWidth = '';
+      panel.style.maxHeight = '';
+      panel.style.overflowY = '';
+      panel.style.zIndex = '';
+      
+      const formSection = dropdown.closest('.filter-group');
+      if (formSection) {
+        formSection.style.overflow = '';
+        formSection.style.zIndex = '';
+      }
+      
       if (searchInput) {
         searchInput.value = '';
         filterOptions('');

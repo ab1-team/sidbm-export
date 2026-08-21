@@ -42,8 +42,8 @@
     /* ── Shell ── */
     .admin-shell {
       display: flex;
-      height: 100vh;
-      overflow: hidden;
+      min-height: 100vh;
+      flex-wrap: wrap;
     }
 
     /* ── Sidebar ── */
@@ -130,25 +130,38 @@
       width: 40px; height: 40px;
       border: 0;
       border-radius: 50%;
-      display: none;
       align-items: center; justify-content: center;
       color: var(--teks-muted);
       background: transparent;
       cursor: pointer;
       transition: background .2s ease, color .2s ease;
+      display: none;
     }
     .navbar__menu.visible {
       display: flex;
     }
     .navbar__menu:hover { background: var(--content-bg); color: var(--teks); }
     .navbar__menu svg { width: 20px; height: 20px; stroke-width: 1.8; }
+    
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 55;
+    }
+    .sidebar-overlay.show {
+      display: block;
+    }
 
     .admin-main {
       flex: 1;
       min-width: 0;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
       height: 100vh;
     }
     .admin-main > .navbar {
@@ -1048,8 +1061,24 @@
 
     @media (max-width: 768px) {
       html, body { font-size: 15px; }
+      .admin-shell {
+        flex-direction: column;
+      }
+      .admin-main { 
+        margin-left: 0; 
+        flex: 1; 
+        width: 100%;
+        height: auto;
+        min-height: auto;
+      }
+      .admin-content { 
+        padding: 16px 14px 100px; 
+        flex: 1;
+        overflow-y: visible;
+      }
+      .admin-footer  { padding: 10px 14px; font-size: .72rem; }
       .navbar__menu { display: flex !important; }
-      .admin-main { margin-left: 0; }
+      
       .sidebar {
         position: fixed;
         left: -260px;
@@ -1065,13 +1094,20 @@
       }
       .sidebar__close { display: inline-flex; }
       .sidebar__link  { font-size: .88rem; padding: 10px 14px; }
-      .admin-content { padding: 16px 14px 28px; }
-      .admin-footer  { padding: 10px 14px; font-size: .72rem; }
 
       .navbar  { padding: 0 16px; height: 60px; }
       .navbar__title { font-size: .95rem; }
-      .admin-content { padding: 14px 14px 20px; }
-      .admin-footer { padding: 10px 14px; font-size: .72rem; }
+      
+      .navbar__user-name { font-size: .82rem; }
+      .navbar__user-role { display: none; }
+      .navbar__user { padding-left: 10px; }
+      .navbar__user .navbar__avatar { width: 32px; height: 32px; font-size: .78rem; }
+      
+      .notif-panel {
+        width: calc(100vw - 32px);
+        right: -8px;
+        max-width: 380px;
+      }
 
       .stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1195,11 +1231,6 @@
         font-size: .72rem;
         line-height: 1.4;
       }
-
-      .notif-panel {
-        width: calc(100vw - 32px);
-        right: -8px;
-      }
     }
 
     @media (max-width: 480px) {
@@ -1250,6 +1281,9 @@
 <body>
 
   <div class="admin-shell">
+    
+    {{-- Overlay for mobile sidebar --}}
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     {{-- ── Sidebar ── --}}
     <aside class="sidebar">
@@ -1321,7 +1355,7 @@
       {{-- Navbar --}}
       <header class="navbar">
         <div style="display:flex; align-items:center; gap:10px;">
-          <button type="button" class="navbar__menu" aria-label="Buka sidebar" onclick="document.querySelector('.sidebar').classList.toggle('mobile-show')" style="display:none;">
+           <button type="button" class="navbar__menu" id="sidebarToggle" aria-label="Buka sidebar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
@@ -1464,8 +1498,61 @@
        container.appendChild(toast);
        setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 5000);
    }
-   window.showToast = showToast;
-   </script>
+    window.showToast = showToast;
+    
+    // Sidebar toggle for mobile
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    function openSidebar() {
+        sidebar.classList.add('mobile-show');
+        sidebarOverlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeSidebar() {
+        sidebar.classList.remove('mobile-show');
+        sidebarOverlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            if (sidebar.classList.contains('mobile-show')) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+    
+    // Close sidebar when clicking a link on mobile
+    sidebar.querySelectorAll('.sidebar__link').forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
+    });
+    
+    // Handle responsive sidebar visibility
+    function handleSidebarResponsive() {
+        if (window.innerWidth > 768) {
+            closeSidebar();
+            sidebarToggle.style.display = 'none';
+        } else {
+            sidebarToggle.style.display = 'flex';
+        }
+    }
+    
+    window.addEventListener('resize', handleSidebarResponsive);
+    handleSidebarResponsive();
+    </script>
 
 </body>
 </html>
