@@ -3,7 +3,15 @@
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\LogController;
+use App\Services\EnStorageService;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/enstorage/ping', function () {
+    $service = app(EnStorageService::class);
+    return response()->json([
+        'connected' => $service->ping(),
+    ]);
+});
 
 Route::prefix('export')->group(function () {
     Route::get('/files', [ExportController::class, 'show']);

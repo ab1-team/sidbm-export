@@ -13,6 +13,53 @@
   padding-bottom: 20px;
 }
 
+.page-header-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #526D82 0%, #27374D 100%);
+  padding: 24px 28px;
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(82, 109, 130, 0.3);
+}
+
+.page-header-hero__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-header-hero__icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-header-hero__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.page-header-hero__text h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: white;
+}
+
+.page-header-hero__text p {
+  font-size: .85rem;
+  opacity: .85;
+  margin: 0;
+}
+
 .page-header-modern {
   display: flex;
   align-items: center;
@@ -1072,9 +1119,13 @@
     z-index: 1;
   }
   
-  .custom-dropdown {
-    z-index: 1;
-  }
+ .custom-dropdown {
+    z-index: 100;
+}
+
+.custom-dropdown.is-open {
+    z-index: 999 !important;
+}
 }
 </style>
 
@@ -1083,19 +1134,23 @@
 .custom-dropdown {
   position: relative;
   width: 100%;
-  z-index: 101;
+  z-index: 100;
 }
 
 #dropdownKecamatan {
-  z-index: 103;
+  z-index: 200;
 }
 
 #dropdownTahun {
-  z-index: 102;
+  z-index: 100;
 }
 
-.custom-dropdown.is-active {
-  z-index: 104 !important;
+#dropdownKecamatan.is-open {
+  z-index: 200 !important;
+}
+
+.custom-dropdown.is-open {
+  z-index: 200 !important;
 }
 
 .export-card {
@@ -1119,34 +1174,38 @@
     width: 100%;
     height: 100%;
   }
-  
+
   .export-card.dropdown-active,
   .logs-card.dropdown-active {
-    overflow: hidden;
+    overflow: visible;
     position: relative;
   }
-  
+
   .export-card__body.dropdown-active,
   .logs-card__body.dropdown-active {
-    overflow: hidden;
+    overflow: visible;
   }
-  
+
   .custom-dropdown {
-    z-index: 201;
+    z-index: 100;
   }
-  
-  .custom-dropdown.is-active {
-    z-index: 202 !important;
+
+  .custom-dropdown.is-open {
+    z-index: 200 !important;
   }
-  
+
+  #dropdownKecamatan.is-open {
+    z-index: 201 !important;
+  }
+
   .export-card {
     overflow: visible;
   }
-  
+
   .export-card__body {
     overflow: visible;
   }
-  
+
   .logs-card {
     overflow: visible;
   }
@@ -1171,7 +1230,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   min-height: 38px;
   position: relative;
-  z-index: 107;
 }
 
 .custom-dropdown__trigger:hover {
@@ -1192,12 +1250,15 @@
   box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35), 0 4px 15px rgba(0, 0, 0, 0.12);
   border-bottom: none;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(99, 102, 241, 0.02));
+  position: relative;
 }
 
 .custom-dropdown.is-open .custom-dropdown__trigger {
   box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35), 0 4px 15px rgba(0, 0, 0, 0.12);
   border-color: #6366F1;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(99, 102, 241, 0.02));
+  position: relative;
+  z-index: 200;
 }
 
 .custom-dropdown__text {
@@ -1238,7 +1299,7 @@
   border-top: none;
   border-radius: 0 0 20px 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  z-index: 101;
+  z-index: 300;
   overflow: hidden;
   visibility: hidden;
   opacity: 0;
@@ -1254,6 +1315,7 @@
   transition: visibility 0s 0s, opacity .2s ease-out, transform .2s ease-out, box-shadow .2s ease-out;
   border-radius: 16px 16px 20px 20px;
   box-shadow: 0 8px 30px rgba(99, 102, 241, 0.25), 0 4px 15px rgba(0, 0, 0, 0.12);
+  z-index: 300;
 }
 
 .custom-dropdown__search {
@@ -1371,20 +1433,146 @@
   opacity: .4;
   margin-bottom: 8px;
 }
+
+@media (max-width: 768px) {
+
+    .custom-dropdown {
+        position: relative;
+    }
+
+    .custom-dropdown__panel {
+        position: absolute;
+        top: calc(100% + 2px);
+        left: -2px;
+        right: -2px;
+        width: auto;
+        z-index: 300;
+    }
+
+    /* Saat dibuka di mobile,
+       panel masuk ke layout dan mendorong elemen bawah */
+    .custom-dropdown.is-open .custom-dropdown__panel {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        margin-top: 2px;
+    }
+
+    .custom-dropdown.is-open {
+        z-index: 999 !important;
+    }
+
+    .custom-dropdown.is-open + .form-section {
+        position: relative;
+        z-index: 1;
+    }
+
+    .custom-dropdown__options {
+        max-height: 180px;
+        overflow-y: auto;
+    }
+}
+
+/* =========================================
+   DROPDOWN KECAMATAN - DESKTOP
+   ========================================= */
+
+#dropdownKecamatan {
+    position: relative;
+    z-index: 1000;
+}
+
+#dropdownKecamatan.is-open {
+    z-index: 9999 !important;
+}
+
+#dropdownKecamatan .custom-dropdown__panel {
+    position: absolute !important;
+    top: calc(100% - 2px) !important;
+    left: -2px !important;
+    right: -2px !important;
+    width: auto !important;
+    z-index: 99999 !important;
+}
+
+/* Daftar Kecamatan bisa scroll */
+#dropdownKecamatan .custom-dropdown__options {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+/* Tahun berada di bawah secara visual */
+#dropdownTahun {
+    position: relative;
+    z-index: 100;
+}
+
+/* =========================================================
+   FIX: DROPDOWN KECAMATAN MENUTUPI FIELD TAHUN
+   ========================================================= */
+
+.form-section:has(#dropdownKecamatan.is-open) {
+    z-index: 9999 !important;
+}
+
+.form-section:has(#dropdownKecamatan.is-open) .custom-dropdown__panel {
+    z-index: 99999 !important;
+}
+
+.form-section:has(#dropdownKecamatan.is-open) {
+    overflow: visible !important;
+}
+
+/* =========================================================
+   SPACING DROPDOWN KECAMATAN & TAHUN
+   Beri jarak agar trigger "Pilih ..." dan area pencarian
+   tidak terlihat terlalu menempel.
+   ========================================================= */
+
+.custom-dropdown__panel {
+    top: calc(100% + 8px) !important;
+    border: 2px solid var(--border) !important;
+    border-radius: 16px 16px 20px 20px !important;
+}
+
+.custom-dropdown__search {
+    padding: 10px 10px 12px !important;
+    border-bottom: 1px solid var(--border);
+}
+
+.custom-dropdown__search-input {
+    margin-top: 2px;
+}
+
+#dropdownKecamatan .custom-dropdown__panel,
+#dropdownTahun .custom-dropdown__panel {
+    top: calc(100% + 8px) !important;
+}
+
+/* Mobile: tetap beri jarak saat panel masuk ke layout */
+@media (max-width: 768px) {
+    .custom-dropdown.is-open .custom-dropdown__panel {
+        margin-top: 8px !important;
+    }
+}
+
+
 </style>
 
 <div class="export-page">
 
-  <div class="page-header-modern">
-    <div class="page-header-modern__left">
-      <div class="page-header-modern__icon">
+  <div class="page-header-hero">
+    <div class="page-header-hero__left">
+      <div class="page-header-hero__icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
           <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
       </div>
-      <div class="page-header-modern__text">
+      <div class="page-header-hero__text">
         <h1>Export Data</h1>
         <p>Eksport data saldo dan transaksi SIDBM ke EnStorage</p>
       </div>
@@ -1648,9 +1836,19 @@ function initCustomDropdowns() {
       if (e) e.preventDefault();
       if (isOpen) return;
       
+      document.querySelectorAll('.custom-dropdown.is-open').forEach(function(otherDropdown) {
+        if (otherDropdown !== dropdown) {
+          otherDropdown.classList.remove('is-open', 'is-active');
+          const otherTrigger = otherDropdown.querySelector('.custom-dropdown__trigger');
+          const otherPanel = otherDropdown.querySelector('.custom-dropdown__panel');
+          if (otherTrigger) otherTrigger.classList.remove('is-open');
+          if (otherPanel) otherPanel.classList.remove('is-open');
+        }
+      });
+      
       isOpen = true;
       trigger.classList.add('is-open');
-      dropdown.classList.add('is-active', 'is-open');
+      dropdown.classList.add('is-open');
       trigger.setAttribute('aria-expanded', 'true');
       
       const rect = trigger.getBoundingClientRect();
@@ -1658,29 +1856,25 @@ function initCustomDropdowns() {
       const isMobile = window.innerWidth <= 768;
       
       if (isMobile) {
-        // For mobile, use absolute positioning within the form-section
-        panel.style.position = 'absolute';
-        panel.style.left = '-2px';
-        panel.style.right = '-2px';
-        panel.style.top = 'calc(100% + 2px)';
-        panel.style.width = 'auto';
-        panel.style.minWidth = 'auto';
-        panel.style.maxHeight = '180px';
-        panel.style.overflowY = 'auto';
-        panel.style.zIndex = '999';
-        
-        // Allow the form-section to overflow
-        const formSection = dropdown.closest('.form-section');
-        if (formSection) {
-          formSection.style.overflow = 'visible';
-          formSection.style.zIndex = '998';
-        }
-        
-        // Scroll dropdown into view if needed
-        setTimeout(function() {
-          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 10);
-      }
+    // Mobile: dropdown menjadi bagian dari layout
+    // sehingga field di bawahnya terdorong ke bawah
+    panel.style.position = 'relative';
+    panel.style.left = '0';
+    panel.style.right = '0';
+    panel.style.top = '0';
+    panel.style.width = '100%';
+    panel.style.minWidth = '0';
+    panel.style.maxHeight = '180px';
+    panel.style.overflowY = 'auto';
+    panel.style.zIndex = '999';
+
+    const formSection = dropdown.closest('.form-section');
+
+    if (formSection) {
+        formSection.style.overflow = 'visible';
+        formSection.style.zIndex = '998';
+    }
+}
 
       panel.classList.add('is-open');
       
