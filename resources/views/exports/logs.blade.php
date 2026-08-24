@@ -58,8 +58,8 @@
 
 .custom-dropdown__trigger.is-open {
   border-color: #6366F1;
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
   box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
 }
 
@@ -93,7 +93,7 @@
 
 .custom-dropdown__panel {
   position: absolute;
-  top: calc(100% - 2px);
+  top: calc(100% + 10px);
   left: -2px;
   right: -2px;
   background: white;
@@ -115,7 +115,7 @@
   opacity: 1;
   transform: translateY(0);
   transition: visibility 0s 0s, opacity .2s ease-out, transform .2s ease-out, box-shadow .2s ease-out;
-  border-radius: 16px 16px 20px 20px;
+  border-radius: 20px;
   box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
 }
 
@@ -1574,12 +1574,13 @@ function initCustomDropdowns() {
         panel.style.position = 'absolute';
         panel.style.left = '-2px';
         panel.style.right = '-2px';
-        panel.style.top = 'calc(100% + 2px)';
+        panel.style.top = 'calc(100% + 10px)';
         panel.style.width = 'auto';
         panel.style.minWidth = 'auto';
         panel.style.maxHeight = '180px';
         panel.style.overflowY = 'auto';
         panel.style.zIndex = '999';
+        panel.style.borderRadius = '16px';
         
         const formSection = dropdown.closest('.filter-group');
         if (formSection) {

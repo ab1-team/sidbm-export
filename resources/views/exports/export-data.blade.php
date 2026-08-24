@@ -132,10 +132,10 @@
 }
 
 .export-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  gap: 16px;
-  align-items: stretch;
+   display: grid;
+   grid-template-columns: 1fr 1.1fr;
+   gap: 16px;
+   align-items: stretch;
 }
 
 .export-card {
