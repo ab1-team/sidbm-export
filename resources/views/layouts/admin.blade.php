@@ -152,6 +152,7 @@
       bottom: 0;
       background: rgba(0, 0, 0, 0.5);
       z-index: 55;
+      backface-visibility: hidden;
     }
     .sidebar-overlay.show {
       display: block;
@@ -1124,6 +1125,8 @@
 
       .chart-card {
         padding: 16px;
+        margin: 0 -16px;
+        border-radius: 0;
       }
       .chart-container {
         height: 180px;
@@ -1254,7 +1257,7 @@
       }
 
       .chart-container {
-        height: 160px;
+        height: 250px;
       }
 
       .summary-item__value {

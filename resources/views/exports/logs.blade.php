@@ -239,53 +239,6 @@
   z-index: 104 !important;
 }
 
-.page-header-modern {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  background: linear-gradient(135deg, var(--sidebar) 0%, var(--sidebar-hov) 100%);
-  padding: 24px 28px;
-  border-radius: 16px;
-  color: white;
-  box-shadow: 0 8px 32px rgba(82, 109, 130, 0.3);
-}
-
-.page-header-modern__left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.page-header-modern__icon {
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.page-header-modern__icon svg {
-  width: 28px;
-  height: 28px;
-}
-
-.page-header-modern__text h1 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin: 0 0 4px;
-  color: white;
-}
-
-.page-header-modern__text p {
-  font-size: .85rem;
-  opacity: .85;
-  margin: 0;
-}
-
 .ping-badge {
   display: flex;
   align-items: center;
@@ -934,13 +887,13 @@
 }
 
 @media (max-width: 768px) {
-  .page-header-modern {
+  .page-header-hero {
     padding: 20px;
     flex-direction: column;
     align-items: flex-start;
   }
   
-  .page-header-modern__text h1 {
+  .page-header-hero__text h1 {
     font-size: 1.2rem;
   }
   
@@ -1021,23 +974,19 @@
     height: 14px;
   }
   
-  .page-header-modern {
-    padding: 16px;
+  .page-header-hero {
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .page-header-modern__icon {
-    width: 44px;
-    height: 44px;
-  }
-  
-  .page-header-modern__text h1 {
-    font-size: 1.1rem;
+  .page-header-hero__text h1 {
+    font-size: 1.2rem;
   }
   
   .ping-badge {
     width: 100%;
     justify-content: center;
-    padding: 8px 14px;
   }
   
   .filter-card,
@@ -1078,9 +1027,9 @@
 
 <div class="logs-page">
 
-  <div class="page-header-modern">
-    <div class="page-header-modern__left">
-      <div class="page-header-modern__icon">
+  <div class="page-header-hero">
+    <div class="page-header-hero__left">
+      <div class="page-header-hero__icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
@@ -1089,7 +1038,7 @@
           <polyline points="10 9 9 9 8 9"/>
         </svg>
       </div>
-      <div class="page-header-modern__text">
+      <div class="page-header-hero__text">
         <h1>Log Export</h1>
         <p>Riwayat aktivitas export data SIDBM</p>
       </div>

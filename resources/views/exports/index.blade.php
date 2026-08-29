@@ -1,3 +1,5 @@
+{{--TIDAK DI GUNAKAN LAGI--}}
+
 @extends('layouts.admin')
 
 @section('title', 'Dashboard — SIDBM Export')
@@ -8,14 +10,13 @@
 <div class="page-header">
   <div>
     <h1>Dashboard Export</h1>
-    <div class="page-header__sub">Ringkasan aktivitas export data SIDBM</div>
+    <div class="page-header__sub">Ringkasan export data SIDBM</div>
   </div>
   <span class="ping">
     <span class="ping__dot {{ $enstoragePing ? 'ping__dot--ok' : '' }}"></span>
     EnStorage {{ $enstoragePing ? 'Terhubung' : 'Tidak Terhubung' }}
   </span>
 </div>
-
 {{-- ── Statistik ── --}}
 <div class="stats-grid">
   <div class="stat-card stat--total">

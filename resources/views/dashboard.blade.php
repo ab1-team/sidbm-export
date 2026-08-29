@@ -171,6 +171,7 @@
   grid-template-columns: 1fr 380px;
   gap: 20px;
   align-items: stretch;
+  height: 500px;
 }
 
 .chart-card {
@@ -237,7 +238,7 @@
 
 .chart-container canvas {
   width: 100% !important;
-  height: 280px !important;
+  height: 330px !important;
 }
 
 .summary-card {
@@ -432,9 +433,11 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .page-header-hero {
-    padding: 16px;
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
   }
   
   .page-header-hero__icon {
@@ -443,7 +446,12 @@
   }
   
   .page-header-hero__text h1 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+  }
+  
+  .ping-badge {
+    width: 100%;
+    justify-content: center;
   }
   
   .stat-card__num {
@@ -464,7 +472,7 @@
       </div>
       <div class="page-header-hero__text">
         <h1>Dashboard</h1>
-        <p>Ringkasan aktivitas export data SIDBM</p>
+        <p>Ringkasan export data SIDBM</p>
       </div>
     </div>
     <div class="ping-badge">
@@ -521,7 +529,7 @@
       <div class="chart-header">
         <div class="chart-title-area">
           <h3 class="chart-title">Trend Export</h3>
-          <p class="chart-subtitle">Jumlah export berhasil dan gagal dalam 7 hari terakhir</p>
+          <p class="chart-subtitle">Jumlah export berhasil dan gagal dalam 7</p>
         </div>
         <div class="chart-legend">
           <span class="legend-item"><span class="legend-dot legend-dot--success"></span> Berhasil</span>
