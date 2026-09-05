@@ -42,7 +42,7 @@ export default {
                     900: '#253238',
                 },
                 surface: '#F8FAFC',
-                card: '#FFFFFF',
+                'card-bg': '#FFFFFF',
                 text: '#27374D',
                 border: '#DDE6ED',
             },

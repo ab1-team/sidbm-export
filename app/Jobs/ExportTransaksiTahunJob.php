@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\ExportLog;
-use App\Models\Notification;
 use App\Services\TransaksiExportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,29 +33,10 @@ class ExportTransaksiTahunJob implements ShouldQueue
 
     public function handle(TransaksiExportService $transaksiService): void
     {
-        $result = $transaksiService->exportTahun(
+        $transaksiService->exportTahun(
             $this->kecamatanId,
             $this->tahun,
             $this->triggeredBy ?? 'queue'
         );
-
-        if ($this->userId > 0) {
-            $kecamatan = \App\Models\Sidbm\Kecamatan::find($this->kecamatanId);
-            $kecName = $kecamatan ? $kecamatan->nama_kec : 'Kecamatan ' . $this->kecamatanId;
-
-            if ($result['success']) {
-                Notification::exportSuccess(
-                    $this->userId,
-                    'transaksi',
-                    $result['filename'] ?? "Transaksi {$kecName} {$this->tahun}"
-                );
-            } else {
-                Notification::exportFailed(
-                    $this->userId,
-                    'transaksi',
-                    $result['message'] ?? 'Export transaksi gagal'
-                );
-            }
-        }
     }
 }

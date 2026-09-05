@@ -234,11 +234,14 @@
 
 .chart-container {
   padding: 20px 24px;
+  position: relative;
+  width: 100%;
+  height: 370px;
 }
 
 .chart-container canvas {
   width: 100% !important;
-  height: 330px !important;
+  height: 100% !important;
 }
 
 .summary-card {
@@ -334,104 +337,6 @@
   font-weight: 600;
 }
 
-@media (max-width: 1200px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .dashboard-bottom-grid {
-    grid-template-columns: 1fr 340px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .dashboard-bottom-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .page-header-hero {
-    padding: 20px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .page-header-hero__text h1 {
-    font-size: 1.2rem;
-  }
-  
-  .ping-badge {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  
-  .stat-card {
-    padding: 16px;
-  }
-  
-  .stat-card__num {
-    font-size: 1.6rem;
-  }
-  
-  .chart-header {
-    padding: 16px;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .chart-container {
-    padding: 12px 16px;
-  }
-  
-  .chart-container canvas {
-    height: 220px !important;
-  }
-  
-  .summary-header {
-    padding: 16px;
-  }
-  
-  .summary-body {
-    padding: 12px 16px;
-  }
-  
-  .summary-footer {
-    padding: 12px 16px;
-  }
-}
-
-@media (max-width: 640px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .stat-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .stat-card__header {
-    margin-bottom: 0;
-  }
-  
-  .stat-card__body {
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .chart-legend {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-}
 
 @media (max-width: 768px) {
   .page-header-hero {
@@ -456,6 +361,57 @@
   
   .stat-card__num {
     font-size: 1.5rem;
+  }
+
+  .dashboard-bottom-grid {
+    grid-template-columns: 1fr;
+    display: grid;
+    gap: 20px;
+    height: auto;
+    padding: 0 16px;
+  }
+
+  .chart-card {
+    height: 450px;
+  }
+  .chart-container {
+    height: 310px;
+    padding: 16px 10px;
+  }
+
+  .chart-container canvas {
+    height: 100% !important;
+    width: 100% !important;
+  }
+
+  .summary-card {
+    height: 450px;
+    margin: 0 -16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .stat-card__header {
+    margin-bottom: 0;
+  }
+  
+  .stat-card__body {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .chart-legend {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }
 </style>
@@ -600,9 +556,9 @@
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const chartLabels = ['01 Aug', '02 Aug', '03 Aug', '04 Aug', '05 Aug', '06 Aug', '07 Aug'];
-    const successData = [8, 15, 12, 22, 18, 28, 14];
-    const failedData = [8420, 9150, 10280, 8760, 11340, 9870, 10794];
+  const chartLabels = {!! json_encode($chartLabels) !!};
+  const successData = {!! json_encode($successData) !!};
+  const failedData = {!! json_encode($failedData) !!};
 
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -697,7 +653,6 @@
                     type: 'linear',
                     position: 'left',
                     beginAtZero: true,
-                    max: 12000,
                     grid: {
                         color: 'rgba(0, 0, 0, 0.04)',
                     },
@@ -708,7 +663,6 @@
                             size: 11
                         },
                         padding: 8,
-                        stepSize: 2000,
                         callback: function(value) {
                             return formatNumber(value);
                         }
@@ -718,7 +672,6 @@
                     type: 'linear',
                     position: 'right',
                     beginAtZero: true,
-                    max: 60,
                     grid: {
                         drawOnChartArea: false,
                     },

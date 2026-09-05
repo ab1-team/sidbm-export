@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\ExportLog;
-use App\Models\Notification;
 use App\Services\SaldoExportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,29 +33,10 @@ class ExportSaldoTahunJob implements ShouldQueue
 
     public function handle(SaldoExportService $saldoService): void
     {
-        $result = $saldoService->export(
+        $saldoService->export(
             $this->kecamatanId,
             $this->tahun,
             $this->triggeredBy ?? 'queue'
         );
-
-        if ($this->userId > 0) {
-            $kecamatan = \App\Models\Sidbm\Kecamatan::find($this->kecamatanId);
-            $kecName = $kecamatan ? $kecamatan->nama_kec : 'Kecamatan ' . $this->kecamatanId;
-
-            if ($result['success']) {
-                Notification::exportSuccess(
-                    $this->userId,
-                    'saldo',
-                    $result['filename'] ?? "Saldo {$kecName} {$this->tahun}"
-                );
-            } else {
-                Notification::exportFailed(
-                    $this->userId,
-                    'saldo',
-                    $result['message'] ?? 'Export saldo gagal'
-                );
-            }
-        }
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Sidbm\Kecamatan;
-use App\Models\Notification;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -35,22 +34,6 @@ public function saldo(Request $request)
         auth()->user()?->name ?? 'api'
     );
 
-    if (auth()->check()) {
-        if ($result['success']) {
-            Notification::exportSuccess(
-                auth()->id(),
-                'saldo',
-                $result['filename'] ?? 'saldo_' . $request->tahun
-            );
-        } else {
-            Notification::exportFailed(
-                auth()->id(),
-                'saldo',
-                $result['message'] ?? 'Export saldo gagal'
-            );
-        }
-    }
-
     return response()->json([
         'success'    => $result['success'],
         'message'    => $result['message'],
@@ -70,22 +53,6 @@ public function transaksi(Request $request)
         (int) $request->tahun,
         auth()->user()?->name ?? 'api'
     );
-
-    if (auth()->check()) {
-        if ($result['success'] > 0) {
-            Notification::exportSuccess(
-                auth()->id(),
-                'transaksi',
-                'transaksi_' . $request->tahun
-            );
-        } else {
-            Notification::exportFailed(
-                auth()->id(),
-                'transaksi',
-                'Export transaksi gagal'
-            );
-        }
-    }
 
     return response()->json([
         'success'  => $result['success'] > 0,
@@ -118,35 +85,6 @@ public function exportBoth(Request $request)
     }
 
     $overallSuccess = $saldoResult['success'] || $transaksiResult['success'] > 0;
-
-    if (auth()->check()) {
-        if ($saldoResult['success']) {
-            Notification::exportSuccess(
-                auth()->id(),
-                'saldo',
-                $saldoResult['filename'] ?? 'saldo_' . $tahun
-            );
-        } else {
-            Notification::exportFailed(
-                auth()->id(),
-                'saldo',
-                $saldoResult['message'] ?? 'Export saldo gagal'
-            );
-        }
-        if ($transaksiResult['success'] > 0) {
-            Notification::exportSuccess(
-                auth()->id(),
-                'transaksi',
-                'transaksi_' . $tahun
-            );
-        } else {
-            Notification::exportFailed(
-                auth()->id(),
-                'transaksi',
-                'Export transaksi gagal'
-            );
-        }
-    }
 
     $logs = \App\Models\ExportLog::latest()->limit(20)->get();
 

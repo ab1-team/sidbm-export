@@ -59,7 +59,7 @@
 
             <!-- Login Card -->
             <div class="w-full max-w-md mx-4 relative z-10">
-                <div class="bg-card rounded-card shadow-card hover:shadow-card-hover transition-all duration-300 px-8 py-10">
+                <div class="bg-card-bg rounded-card shadow-card transition-all duration-300 px-8 py-10">
                     {{ $slot }}
                 </div>
             </div>

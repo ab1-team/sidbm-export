@@ -276,6 +276,7 @@
 .filter-card__header {
   padding: 16px 20px 14px;
   border-bottom: 1px solid var(--border);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -331,7 +332,6 @@
   transition: transform 0.3s ease;
   position: relative;
   z-index: 1;
-}
   overflow: visible;
 }
 
@@ -905,7 +905,6 @@
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
   .table-card__header {
     padding: 14px 16px;
   }
@@ -942,6 +941,16 @@
   .pagination-links {
     justify-content: center;
     flex-wrap: wrap;
+  }
+
+   .table-card {
+    overflow-x: hidden;
+  }
+  
+  /* Pastikan scroll tetap berfungsi */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

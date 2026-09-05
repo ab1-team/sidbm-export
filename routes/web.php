@@ -1,8 +1,8 @@
 <?php
 // routes/web.php
 
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\ExportController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ExportController as ApiExportController;
@@ -34,17 +34,15 @@ Route::prefix('api')->group(function () {
 
     });
 
-    Route::prefix('notifications')->group(function () {
-        Route::get('/', [NotificationController::class, 'index']);
-        Route::get('/unread-count', [NotificationController::class, 'unread']);
-        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
-        Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
-        Route::delete('/{id}', [NotificationController::class, 'destroy']);
-    });
-
     });
 
     Route::get('/', [ExportController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/downloads', [DownloadController::class, 'index'])->name('downloads.index');
+    Route::get('/downloads/exports', [DownloadController::class, 'getExports'])->name('downloads.exports');
+    Route::post('/downloads/generate', [DownloadController::class, 'generate'])->name('downloads.generate');
+    Route::get('/downloads/file/{id}/{format}', [DownloadController::class, 'download'])->name('downloads.file');
+    Route::post('/downloads/clear-cache', [DownloadController::class, 'clearCache'])->name('downloads.clear-cache');
 
     Route::get('/export-data', [ExportController::class, 'exportData'])->name('export-data');
 

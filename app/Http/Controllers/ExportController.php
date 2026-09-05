@@ -5,7 +5,6 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Log;
 use App\Models\ExportLog;
-use App\Models\Notification;
 use App\Models\Sidbm\Kecamatan;
 use App\Services\EnStorageService;
 use App\Services\SaldoExportService;
@@ -46,7 +45,24 @@ class ExportController extends Controller
                 ->count();
         })->toArray();
 
-        return view('dashboard', compact('stats', 'enstoragePing', 'months', 'monthlyData'));
+    // Di method dashboard()
+    $chartLabels = [];
+    $successData = [];
+    $failedData = [];
+
+    for ($i = 6; $i >= 0; $i--) {
+        $date = now()->copy()->subDays($i);
+        $chartLabels[] = $date->format('d M');
+
+        $successData[] = ExportLog::whereDate('created_at', $date)
+            ->where('status', 'success')
+            ->count();
+
+        $failedData[] = ExportLog::whereDate('created_at', $date)
+            ->where('status', 'failed')
+            ->count();
+    }
+        return view('dashboard', compact('stats', 'enstoragePing', 'months', 'monthlyData', 'chartLabels', 'successData', 'failedData'));
     }
 
     /**
@@ -181,24 +197,6 @@ class ExportController extends Controller
         // Export Transaksi (semua bulan)
         if (in_array($jenis, ['transaksi', 'semua'])) {
             $results['transaksi'] = $this->transaksiService->exportTahun($kecamatanId, $tahun, auth()->user()?->name ?? 'ui');
-        }
-
-        $overallSuccess = collect($results)->every(fn($r) => $r['success'] ?? ($r['success'] > 0));
-
-        if (auth()->check()) {
-            if ($overallSuccess) {
-                Notification::exportSuccess(
-                    auth()->id(),
-                    $jenis,
-                    $jenis === 'semua' ? 'Semua data' : ($results[$jenis]['filename'] ?? 'unknown')
-                );
-            } else {
-                Notification::exportFailed(
-                    auth()->id(),
-                    $jenis,
-                    'Export selesai dengan error'
-                );
-            }
         }
 
         return response()->json([

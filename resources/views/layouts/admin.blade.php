@@ -150,12 +150,13 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+     
       z-index: 55;
       backface-visibility: hidden;
     }
     .sidebar-overlay.show {
       display: block;
+      background: rgba(0, 0, 0, 0.5);
     }
 
     .admin-main {
@@ -1007,7 +1008,7 @@
     /* ── Responsive ── */
     @media (max-width: 1200px) {
       .admin-content {
-        padding: 16px 20px 20px;
+        padding: 16px 20px 12px;
       }
       .page-header {
         margin-bottom: 16px;
@@ -1073,7 +1074,7 @@
         min-height: auto;
       }
       .admin-content { 
-        padding: 16px 14px 100px; 
+        padding: 16px 14px 12px; 
         flex: 1;
         overflow-y: visible;
       }
@@ -1124,7 +1125,7 @@
       .page-header__sub { font-size: .8rem; }
 
       .chart-card {
-        padding: 16px;
+        padding: none;
         margin: 0 -16px;
         border-radius: 0;
       }
@@ -1235,10 +1236,10 @@
         line-height: 1.4;
       }
     }
-
+    /* ── disini ── */
     @media (max-width: 480px) {
       .admin-content {
-        padding: 12px 10px 100px;
+        padding: 12px 10px 12px;
       }
       .card {
         padding: 12px;
@@ -1296,7 +1297,7 @@
           <strong>SIDBM</strong>
           <small>Export</small>
         </div>
-        <button type="button" class="sidebar__close" aria-label="Tutup sidebar" onclick="document.querySelector('.sidebar').classList.remove('mobile-show')">
+        <button type="button" class="sidebar__close" aria-label="Tutup sidebar" onclick="closeSidebar()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 6l12 12M6 18L18 6"/>
           </svg>
@@ -1366,82 +1367,7 @@
           <div class="navbar__title">@yield('navbar_title', 'Dashboard')</div>
         </div>
 
-        <div class="navbar__right" x-data="notificationDropdown()" @click.away="open = false">
-          <div class="notif-dropdown">
-            <div class="navbar__icon" title="Notifikasi" @click="open = !open" :class="{ 'bg-gray-100': open }">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-              </svg>
-              <template x-if="unreadCount > 0">
-                <span class="notif-badge" x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
-              </template>
-            </div>
-
-            <div class="notif-panel" x-show="open" x-transition>
-              <div class="notif-panel__header">
-                <span class="notif-panel__title">Notifikasi</span>
-                <div class="notif-panel__actions">
-                  <button class="notif-panel__btn" @click="markAllAsRead()" x-show="unreadCount > 0">Tandai semua baca</button>
-                </div>
-              </div>
-              <div class="notif-panel__body">
-                <template x-if="loading">
-                  <div class="notif-empty">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                    </svg>
-                    <div>Memuat...</div>
-                  </div>
-                </template>
-                <template x-if="!loading && notifications.length === 0">
-                  <div class="notif-empty">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-                    </svg>
-                    <div>Tidak ada notifikasi</div>
-                  </div>
-                </template>
-                <template x-for="notif in notifications" :key="notif.id">
-                  <div class="notif-item" :class="{ 'unread': !notif.pivot?.read_at }" @click="markAsRead(notif.id)">
-                    <div class="notif-icon" :class="notif.type === 'success' ? 'notif-icon--success' : notif.type === 'error' ? 'notif-icon--error' : notif.type === 'warning' ? 'notif-icon--warning' : 'notif-icon--info'">
-                      <svg x-show="notif.type === 'success'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                      <svg x-show="notif.type === 'error'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="15" y1="9" x2="9" y2="15"/>
-                        <line x1="9" y1="9" x2="15" y2="15"/>
-                      </svg>
-                      <svg x-show="notif.type === 'info' || !notif.type" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="16" x2="12" y2="12"/>
-                        <line x1="12" y1="8" x2="12.01" y2="8"/>
-                      </svg>
-                      <svg x-show="notif.type === 'warning'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                        <line x1="12" y1="9" x2="12" y2="13"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                      </svg>
-                    </div>
-                    <div class="notif-content">
-                      <div class="notif-title" x-text="notif.title"></div>
-                      <div class="notif-body" x-text="notif.body" x-show="notif.body"></div>
-                      <div class="notif-time" x-text="formatTime(notif.created_at)"></div>
-                    </div>
-                    <button class="notif-delete" @click.stop="deleteNotification(notif.id)" title="Hapus">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                      </svg>
-                    </button>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </div>
-
+        <div class="navbar__right">
           @auth
             <div class="navbar__user">
               <div class="navbar__avatar">

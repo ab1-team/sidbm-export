@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-bottom: 20px;
+  padding-bottom: none;
 }
 
 .page-header-hero {
@@ -119,6 +119,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  height: 100%;
 }
 
 .logs-card__header {
@@ -583,7 +584,7 @@
 .mode-content.active {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .form-hint {
@@ -1006,14 +1007,14 @@
 
   .radio-card__label {
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: center;
     padding: 12px 14px;
     text-align: left;
-    border-radius: 16px;
+    border-radius: 50px;
   }
 
   .select2-container--default .select2-selection--single {
-    border-radius: 16px !important;
+    border-radius: 50px !important;
     padding: 12px 45px 12px 16px !important;
   }
 
@@ -1151,6 +1152,7 @@
 
   .logs-card {
     overflow: visible;
+    height: 500px;
   }
 }
 
@@ -1416,6 +1418,18 @@
         max-height: 180px;
         overflow-y: auto;
     }
+
+        /* FIX: DROPDOWN TAHUN - agar tidak mendorong card */
+    .form-section:has(#dropdownTahun.is-open) {
+        overflow: visible !important;
+        z-index: 9999 !important;
+    }
+
+    .form-section:has(#dropdownTahun.is-open) .custom-dropdown__panel {
+        position: absolute !important;
+        z-index: 99999 !important;
+        top: calc(100% + 8px) !important;
+    }
 }
 
 /* =========================================
@@ -1476,7 +1490,7 @@
 
 .custom-dropdown__panel {
     top: calc(100% + 8px) !important;
-    border: 2px solid var(--border) !important;
+    border:none !important;
     border-radius: 16px 16px 20px 20px !important;
 }
 
@@ -1497,7 +1511,7 @@
 /* Mobile: tetap beri jarak saat panel masuk ke layout */
 @media (max-width: 768px) {
     .custom-dropdown.is-open .custom-dropdown__panel {
-        margin-top: 8px !important;
+        margin-top: 1px !important;
     }
 }
 
@@ -1697,7 +1711,7 @@
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
             </svg>
-            Akan mengeksport semua kecamatan &amp; semua tahun secara berurutan. Proses berjalan di background.
+            Akan mengeksport semua kecamatan &amp; semua tahun secara berurutan. Proses berjalan di latar belakang.
           </p>
           
           <div id="bulkProgressArea" style="display:none;">

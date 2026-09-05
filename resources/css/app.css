@@ -327,3 +327,8 @@
 .animate-slowWave {
     animation: slowWave 10s ease-in-out infinite;
 }
+
+.shadow-card {
+    --tw-shadow-color: #1d4e5e;
+    --tw-shadow: var(--tw-shadow-colored);
+}
