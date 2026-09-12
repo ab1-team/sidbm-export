@@ -78,7 +78,7 @@ class ExportController extends Controller
             'total'         => ExportLog::count(),
             'total_success' => ExportLog::where('status', 'success')->count(),
             'total_failed'  => ExportLog::where('status', 'failed')->count(),
-            'total_pending' => ExportLog::where('status', 'pending')->count(),
+            'total_pending' => ExportLog::whereIn('status', ['pending', 'processing'])->count(),
         ];
 
         $enstoragePing = $this->enstorage->ping();

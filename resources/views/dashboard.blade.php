@@ -603,7 +603,7 @@
                     pointHoverBackgroundColor: '#fff',
                     pointHoverBorderColor: '#16A34A',
                     pointHoverBorderWidth: 3,
-                    yAxisID: 'y1',
+                    yAxisID: 'y',
                 }
             ]
         },
@@ -668,23 +668,6 @@
                         }
                     }
                 },
-                y1: {
-                    type: 'linear',
-                    position: 'right',
-                    beginAtZero: true,
-                    grid: {
-                        drawOnChartArea: false,
-                    },
-                    ticks: {
-                        color: '#6B7280',
-                        font: {
-                            family: 'Poppins',
-                            size: 11
-                        },
-                        padding: 8,
-                        stepSize: 10,
-                    }
-                }
             }
         }
     });
