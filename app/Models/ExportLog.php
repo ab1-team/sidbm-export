@@ -49,6 +49,16 @@ class ExportLog extends Model
         return $query->where('kecamatan_id', $kecamatanId);
     }
 
+    public function kecamatan()
+    {
+        return $this->belongsTo(\App\Models\Sidbm\Kecamatan::class, 'kecamatan_id');
+    }
+
+    public function getNamaKecamatanAttribute(): ?string
+    {
+        return $this->kecamatan?->nama_kec;
+    }
+
     // ── Accessors ───────────────────────────────────────────
 
     /**

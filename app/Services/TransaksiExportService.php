@@ -34,7 +34,7 @@ class TransaksiExportService
         if (ExportLog::where('kecamatan_id', $kecamatanId)
             ->where('jenis', 'transaksi')
             ->where('tahun', $tahun)
-            ->whereIn('status', ['processing', 'pending'])
+            ->where('status', 'pending')
             ->exists()) {
             return [
                 'success' => 0,
@@ -49,7 +49,7 @@ class TransaksiExportService
             'tahun'        => $tahun,
             'bulan'        => null,
             'filename'     => $filename,
-            'status'       => 'processing',
+            'status'       => 'pending',
             'triggered_by' => $triggeredBy,
         ]);
 
@@ -155,7 +155,7 @@ class TransaksiExportService
             'triggered_by' => $triggeredBy,
         ]);
 
-        $log->update(['status' => 'processing']);
+        $log->update(['status' => 'pending']);
 
         try {
             $model = new TransaksiModel($kecamatanId);

@@ -60,11 +60,14 @@ class FileController extends Controller
             ], 404);
         }
 
-        $fullPath = Storage::disk('local')->path($path);
+        $content = Storage::disk('local')->get($path);
         $filename = basename($path);
 
-        return response()->download($fullPath, $filename, [
+        return response($content, 200, [
             'Content-Type' => 'application/json',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Length' => strlen($content),
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
         ]);
     }
 
@@ -83,20 +86,14 @@ class FileController extends Controller
             ], 404);
         }
 
-        $fullPath = Storage::disk('local')->path($path);
+        $content = Storage::disk('local')->get($path);
         $filename = basename($path);
-        $filesize = filesize($fullPath);
 
-        $stream = fopen($fullPath, 'r');
-
-        return response()->stream(function () use ($stream) {
-            fpassthru($stream);
-            fclose($stream);
-        }, 200, [
+        return response($content, 200, [
             'Content-Type' => 'application/json',
-            'Content-Length' => $filesize,
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Accept-Ranges' => 'bytes',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            'Content-Length' => strlen($content),
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
         ]);
     }
 }

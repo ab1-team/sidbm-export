@@ -45,7 +45,24 @@ class ExportController extends Controller
                 ->count();
         })->toArray();
 
-        return view('dashboard', compact('stats', 'enstoragePing', 'months', 'monthlyData'));
+    // Di method dashboard()
+    $chartLabels = [];
+    $successData = [];
+    $failedData = [];
+
+    for ($i = 6; $i >= 0; $i--) {
+        $date = now()->copy()->subDays($i);
+        $chartLabels[] = $date->format('d M');
+
+        $successData[] = ExportLog::whereDate('created_at', $date)
+            ->where('status', 'success')
+            ->count();
+
+        $failedData[] = ExportLog::whereDate('created_at', $date)
+            ->where('status', 'failed')
+            ->count();
+    }
+        return view('dashboard', compact('stats', 'enstoragePing', 'months', 'monthlyData', 'chartLabels', 'successData', 'failedData'));
     }
 
     /**
@@ -61,7 +78,7 @@ class ExportController extends Controller
             'total'         => ExportLog::count(),
             'total_success' => ExportLog::where('status', 'success')->count(),
             'total_failed'  => ExportLog::where('status', 'failed')->count(),
-            'total_pending' => ExportLog::where('status', 'pending')->count(),
+            'total_pending' => ExportLog::whereIn('status', ['pending', 'processing'])->count(),
         ];
 
         $enstoragePing = $this->enstorage->ping();
@@ -89,6 +106,60 @@ class ExportController extends Controller
             'success' => true,
             'logs' => $logs,
         ]);
+    }
+
+    public function viewFile(Request $request)
+    {
+        $kecamatanId = $request->query('kecamatan');
+        $type = $request->query('type');
+        $tahun = $request->query('tahun');
+
+        if (!$kecamatanId || !$type || !$tahun) {
+            abort(400, 'Parameter kecamatan, type, dan tahun diperlukan.');
+        }
+
+        $filename = "{$type}_{$tahun}.json";
+        $path = "exports/kecamatan_{$kecamatanId}/{$filename}";
+
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $content = \Illuminate\Support\Facades\Storage::disk('local')->get($path);
+
+        return response($content, 200, [
+            'Content-Type' => 'application/json',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        ]);
+    }
+
+    public function viewExport(Request $request)
+    {
+        $kecamatanId = $request->query('kecamatan');
+        $type = $request->query('type');
+        $tahun = $request->query('tahun');
+
+        if (!$kecamatanId || !$type || !$tahun) {
+            abort(400, 'Parameter kecamatan, type, dan tahun diperlukan.');
+        }
+
+        $filename = "{$type}_{$tahun}.json";
+        $path = "exports/kecamatan_{$kecamatanId}/{$filename}";
+
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $content = \Illuminate\Support\Facades\Storage::disk('local')->get($path);
+        $data = json_decode($content, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            abort(400, 'File bukan JSON yang valid.');
+        }
+
+        $isSaldo = $type === 'saldo';
+
+        return view('exports.viewer', compact('filename', 'kecamatanId', 'type', 'tahun', 'data', 'isSaldo'));
     }
 
     /**
@@ -127,8 +198,6 @@ class ExportController extends Controller
         if (in_array($jenis, ['transaksi', 'semua'])) {
             $results['transaksi'] = $this->transaksiService->exportTahun($kecamatanId, $tahun, auth()->user()?->name ?? 'ui');
         }
-
-        $overallSuccess = collect($results)->every(fn($r) => $r['success'] ?? ($r['success'] > 0));
 
         return response()->json([
             'success' => $overallSuccess,
@@ -177,7 +246,8 @@ foreach ($kecamatanList as $kec) {
             $jobs[] = new ExportSaldoTahunJob(
                 $kec->id,
                 $tahun,
-                $user
+                $user,
+                auth()->id()
             );
         }
 
@@ -185,7 +255,8 @@ foreach ($kecamatanList as $kec) {
             $jobs[] = new ExportTransaksiTahunJob(
                 $kec->id,
                 $tahun,
-                $user
+                $user,
+                auth()->id()
             );
         }
 
@@ -260,17 +331,35 @@ $this->ensureQueueWorkerRunning();
         $kecamatanId = $request->query('kecamatan_id');
         $jenis       = $request->query('jenis');
         $status      = $request->query('status');
+        $tahun       = $request->query('tahun');
+        $search      = $request->query('search');
+        $perPage     = in_array($request->query('per_page'), [10, 25, 50, 100]) ? (int) $request->query('per_page') : 10;
 
         $logs = ExportLog::query()
+            ->select('export_logs.*')
+            ->with('kecamatan')
             ->when($kecamatanId, fn($q) => $q->where('kecamatan_id', $kecamatanId))
             ->when($jenis,       fn($q) => $q->where('jenis', $jenis))
             ->when($status,      fn($q) => $q->where('status', $status))
+            ->when($tahun,       fn($q) => $q->where('tahun', $tahun))
+            ->when($search, function($q) use ($search) {
+                $kecIds = Kecamatan::on('sidbm')->where('nama_kec', 'like', '%' . $search . '%')->pluck('id');
+                $q->whereIn('kecamatan_id', $kecIds);
+            })
             ->latest()
-            ->paginate(25);
+            ->paginate($perPage);
 
-        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
+        $kecamatanList = Kecamatan::on('sidbm')->orderBy('id')->get(['id', 'nama_kec']);
+        $tahunList = ExportLog::select('tahun')->distinct()->orderByDesc('tahun')->pluck('tahun');
 
-        return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status'));
+        $stats = [
+            'success' => ExportLog::where('status', 'success')->count(),
+            'failed'  => ExportLog::where('status', 'failed')->count(),
+        ];
+
+        $enstoragePing = $this->enstorage->ping();
+
+        return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status', 'tahun', 'tahunList', 'stats', 'enstoragePing', 'search', 'perPage'));
     }
 
 private function ensureQueueWorkerRunning(): void

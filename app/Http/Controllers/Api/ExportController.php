@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Sidbm\Kecamatan;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
@@ -85,10 +84,12 @@ public function exportBoth(Request $request)
         $transaksiResult = ['success' => 0, 'failed' => 1, 'results' => [['success' => false, 'message' => $e->getMessage()]]];
     }
 
+    $overallSuccess = $saldoResult['success'] || $transaksiResult['success'] > 0;
+
     $logs = \App\Models\ExportLog::latest()->limit(20)->get();
 
     return response()->json([
-        'success'  => $saldoResult['success'] || $transaksiResult['success'] > 0,
+        'success'  => $overallSuccess,
         'message'  => 'Export selesai',
         'logs'     => $logs,
         'results'  => [
@@ -106,29 +107,33 @@ public function show(Request $request)
     $download = $request->query('download');
 
     if (!$kecamatanId || !$type || !$tahun) {
-        abort(400, 'Parameter kecamatan, type, dan tahun diperlukan.');
+        return response()->json(['error' => 'Parameter kecamatan, type, dan tahun diperlukan.'], 400);
     }
 
     $filename = "{$type}_{$tahun}.json";
     $path = "exports/kecamatan_{$kecamatanId}/{$filename}";
 
     if (!Storage::disk('local')->exists($path)) {
-        abort(404, 'File tidak ditemukan.');
+        return response()->json(['error' => 'File tidak ditemukan.'], 404);
     }
 
     $content = Storage::disk('local')->get($path);
 
+    $headers = [
+        'Content-Type' => 'application/json',
+        'X-Content-Type-Options' => 'nosniff',
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma' => 'no-cache',
+        'Expires' => '0',
+    ];
+
     if ($download === '1') {
-        return response($content, 200, [
-            'Content-Type' => 'application/json',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
+        $headers['Content-Disposition'] = 'attachment; filename="' . $filename . '"';
+        return response($content, 200, $headers);
     }
 
-    return response($content, 200, [
-        'Content-Type' => 'application/json',
-        'Content-Disposition' => 'inline; filename="' . $filename . '"',
-    ]);
+    $headers['Content-Disposition'] = 'inline; filename="' . $filename . '"';
+    return response($content, 200, $headers);
 }
 
 public function view(Request $request)
@@ -192,11 +197,11 @@ public function runAll(Request $request)
     foreach ($kecamatanList as $kec) {
         foreach ($tahunList as $tahun) {
             if ($jenis === 'saldo' || $jenis === 'semua') {
-                $jobs[] = new ExportSaldoTahunJob($kec->id, $tahun, $user);
+                $jobs[] = new ExportSaldoTahunJob($kec->id, $tahun, $user, auth()->id());
             }
 
             if ($jenis === 'transaksi' || $jenis === 'semua') {
-                $jobs[] = new ExportTransaksiTahunJob($kec->id, $tahun, $user);
+                $jobs[] = new ExportTransaksiTahunJob($kec->id, $tahun, $user, auth()->id());
             }
         }
     }

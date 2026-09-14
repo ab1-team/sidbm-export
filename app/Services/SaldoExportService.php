@@ -35,7 +35,7 @@ class SaldoExportService
         if (ExportLog::where('kecamatan_id', $kecamatanId)
             ->where('jenis', 'saldo')
             ->where('tahun', $tahun)
-            ->whereIn('status', ['processing', 'pending'])
+            ->where('status', 'pending')
             ->exists()) {
             return [
                 'success' => false,
@@ -50,7 +50,7 @@ class SaldoExportService
             'tahun'        => $tahun,
             'bulan'        => null,
             'filename'     => "saldo_{$tahun}.json",
-            'status'       => 'processing',
+            'status'       => 'pending',
             'triggered_by' => $triggeredBy,
         ]);
         

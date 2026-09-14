@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ExportLog;
 use App\Services\TransaksiExportService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,6 +22,7 @@ class ExportTransaksiTahunJob implements ShouldQueue
     public int $kecamatanId,
     public int $tahun,
     public ?string $triggeredBy = null,
+    public int $userId = 0,
 ) {
 }
 
