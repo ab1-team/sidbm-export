@@ -499,7 +499,7 @@
 }
 
 .table-card__title {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   font-size: .95rem;
@@ -530,6 +530,97 @@
   background: #F1F5F9;
   padding: 4px 10px;
   border-radius: 50px;
+}
+
+.table-card__title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.table-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.table-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.table-search__icon {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  color: var(--teks-muted);
+  pointer-events: none;
+}
+
+.table-search__input {
+  padding: 8px 16px 8px 38px;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  font-size: .85rem;
+  font-family: inherit;
+  background: #F9FAFB;
+  color: var(--teks);
+  width: 200px;
+  transition: all .2s ease;
+}
+
+.table-search__input:focus {
+  outline: none;
+  border-color: #6366F1;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  width: 250px;
+}
+
+.table-search__input::placeholder {
+  color: var(--teks-muted);
+}
+
+.table-entries {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-entries__label {
+  font-size: .85rem;
+  color: var(--teks-muted);
+  white-space: nowrap;
+}
+
+.table-entries__select {
+  padding: 6px 28px 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .85rem;
+  font-family: inherit;
+  background: white;
+  color: var(--teks);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: all .2s ease;
+}
+
+.table-entries__select:hover {
+  border-color: #CBD5E1;
+}
+
+.table-entries__select:focus {
+  outline: none;
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .table-wrap {
@@ -1236,23 +1327,6 @@
             <input type="hidden" name="tahun" id="inputTahun" value="{{ $tahun ?? '' }}">
           </div>
         </div>
-        <div class="filter-actions">
-          <button type="submit" class="btn-filter btn-filter--primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            Terapkan Filter
-          </button>
-          <a href="{{ route('export.logs') }}" class="btn-filter btn-filter--secondary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 6h18"/>
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-            </svg>
-            Reset
-          </a>
-        </div>
       </form>
     </div>
   </div>
@@ -1267,8 +1341,27 @@
           </svg>
         </span>
         Data Log Export
+        <div class="table-entries">
+          <span class="table-entries__label">Tampilkan</span>
+          <select class="table-entries__select" id="perPageSelect">
+            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+            <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+            <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+          </select>
+          <span class="table-entries__label">data</span>
+        </div>
       </span>
-      <span class="table-card__count">{{ $logs->total() }} total data</span>
+      <div class="table-card__actions">
+        <div class="table-search">
+          <svg class="table-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="table-search__input" placeholder="Cari..." id="searchInput" value="{{ $search ?? '' }}">
+        </div>
+        <span class="table-card__count">{{ $logs->total() }} total data</span>
+      </div>
     </div>
     <div class="table-wrap">
       <table class="data-table">
@@ -1394,7 +1487,7 @@
 
     @if($logs->hasPages())
       @php
-        $filterParams = request()->only(['kecamatan_id', 'jenis', 'status', 'tahun']);
+        $filterParams = request()->only(['kecamatan_id', 'jenis', 'status', 'tahun', 'search', 'per_page']);
         $filterQuery = http_build_query(array_filter($filterParams));
         function paginateUrl($page, $filterQuery) {
           $separator = $filterQuery ? (str_contains($page, '?') ? '&' : '?') : '';
@@ -1638,6 +1731,8 @@ function initCustomDropdowns() {
       }
 
       closeDropdown();
+
+      document.getElementById('filterForm').submit();
     }
 
     trigger.addEventListener('mousedown', function(e) {
@@ -1679,8 +1774,40 @@ function initCustomDropdowns() {
         closeDropdown();
       }
     });
-  });
-}
+});
+  }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    let debounceTimer;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const query = this.value.trim();
+        const url = new URL(window.location.href);
+        if (query) {
+          url.searchParams.set('search', query);
+        } else {
+          url.searchParams.delete('search');
+        }
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+      }, 500);
+    });
+  }
+
+  const perPageSelect = document.getElementById('perPageSelect');
+  if (perPageSelect) {
+    perPageSelect.addEventListener('change', function() {
+      const url = new URL(window.location.href);
+      url.searchParams.set('per_page', this.value);
+      url.searchParams.delete('page');
+      window.location.href = url.toString();
+    });
+  }
+});
 </script>
 
 @endsection

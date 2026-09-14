@@ -332,16 +332,24 @@ $this->ensureQueueWorkerRunning();
         $jenis       = $request->query('jenis');
         $status      = $request->query('status');
         $tahun       = $request->query('tahun');
+        $search      = $request->query('search');
+        $perPage     = in_array($request->query('per_page'), [10, 25, 50, 100]) ? (int) $request->query('per_page') : 10;
 
         $logs = ExportLog::query()
+            ->select('export_logs.*')
+            ->with('kecamatan')
             ->when($kecamatanId, fn($q) => $q->where('kecamatan_id', $kecamatanId))
             ->when($jenis,       fn($q) => $q->where('jenis', $jenis))
             ->when($status,      fn($q) => $q->where('status', $status))
             ->when($tahun,       fn($q) => $q->where('tahun', $tahun))
+            ->when($search, function($q) use ($search) {
+                $kecIds = Kecamatan::on('sidbm')->where('nama_kec', 'like', '%' . $search . '%')->pluck('id');
+                $q->whereIn('kecamatan_id', $kecIds);
+            })
             ->latest()
-            ->paginate(25);
+            ->paginate($perPage);
 
-        $kecamatanList = Kecamatan::orderBy('id')->get(['id', 'nama_kec']);
+        $kecamatanList = Kecamatan::on('sidbm')->orderBy('id')->get(['id', 'nama_kec']);
         $tahunList = ExportLog::select('tahun')->distinct()->orderByDesc('tahun')->pluck('tahun');
 
         $stats = [
@@ -351,7 +359,7 @@ $this->ensureQueueWorkerRunning();
 
         $enstoragePing = $this->enstorage->ping();
 
-        return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status', 'tahun', 'tahunList', 'stats', 'enstoragePing'));
+        return view('exports.logs', compact('logs', 'kecamatanList', 'kecamatanId', 'jenis', 'status', 'tahun', 'tahunList', 'stats', 'enstoragePing', 'search', 'perPage'));
     }
 
 private function ensureQueueWorkerRunning(): void
